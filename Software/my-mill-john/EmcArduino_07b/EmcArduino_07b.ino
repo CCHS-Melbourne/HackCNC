@@ -61,8 +61,10 @@ Note concerning switches: Be smart!
 #define minStepTime 25 //delay in MICROseconds between step pulses.
 
 // step pins (required)
-#define stepPin0 54
-#define stepPin1 60
+//#define stepPin0 54
+#define stepPin0 10
+//#define stepPin1 60
+#define stepPin1 8
 #define stepPin2 -1
 #define stepPin3 -1
 #define stepPin4 -1
@@ -72,8 +74,10 @@ Note concerning switches: Be smart!
 #define stepPin8 -1
 
 // dir pins (required)
-#define dirPin0 55
-#define dirPin1 61
+//#define dirPin0 55
+#define dirPin0 11
+//#define dirPin1 61
+#define dirPin1 9
 #define dirPin2 -1
 #define dirPin3 -1
 #define dirPin4 -1
@@ -196,18 +200,18 @@ Note concerning switches: Be smart!
 #define wMaxPin -1
 
 #define powerSwitchIsMomentary true // Set to true if your using a momentary switch.
-#define powerPin    A0 // Power switch. Optional
+#define powerPin    -1 // Power switch. Optional
 #define powerLedPin -1 // Power indicator. Optional
 
-#define eStopPin         A1 // E-Stop switch. You really, REALLY should have this one.
+#define eStopPin         -1 // E-Stop switch. You really, REALLY should have this one.
 #define eStopLedPin      -1 // E-Stop indicator. Optional
 
-#define probePin  A2 // CNC Touch probe input.     Optional
-#define startPin  A3 // CNC Program start switch.  Optional
-#define stopPin   A4 // CNC Stop program switch.   Optional
-#define pausePin  A5 // CNC Pause program switch.  Optional
-#define resumePin A6 // CNC Resume program switch. Optional
-#define stepPin   A7 // CNC Program step switch.   Optional
+#define probePin  -1 // CNC Touch probe input.     Optional
+#define startPin  -1 // CNC Program start switch.  Optional
+#define stopPin   -1 // CNC Stop program switch.   Optional
+#define pausePin  -1 // CNC Pause program switch.  Optional
+#define resumePin -1 // CNC Resume program switch. Optional
+#define stepPin   -1 // CNC Program step switch.   Optional
 
 // Spindle pin config
 #define spindleEnablePin         -1 // Optional
@@ -843,7 +847,7 @@ void setup()
   pinMode(idleIndicator,OUTPUT);
 
   // Actually SET our microStepping mode. (If you must change this, re-adjust your stepsPerInch settings.)
-  stepMode(9,1);
+  stepMode(16,1);
   
   // Setup serial link.
   Serial.begin(BAUD);
