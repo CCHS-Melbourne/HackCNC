@@ -1,10 +1,9 @@
 ( Made using CamBam - http://www.cambam.co.uk )
 ( Untitled 11/6/2012 5:32:43 PM )
-( T10 : 0.5 )
+( T1 : 0.5 )
 G21 G90 G64 G40
 G0 Z3.0
-( T10 : 0.5 )
-T10 M6
+T1 M6
 ( Engrave1 )
 G17
 M3 S1000
