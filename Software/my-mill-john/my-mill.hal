@@ -3,17 +3,17 @@
 # overwritten when you run stepconf again
 loadrt trivkins
 loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES
-loadrt probe_parport
-loadrt hal_parport cfg="0x378 out  "
-setp parport.0.reset-time 5000
+#loadrt probe_parport
+#loadrt hal_parport cfg="0x378 out  "
+#setp parport.0.reset-time 5000
 loadrt stepgen step_type=0,0,0
 loadrt pwmgen output_type=1
 
-addf parport.0.read base-thread
+#addf parport.0.read base-thread
 addf stepgen.make-pulses base-thread
 addf pwmgen.make-pulses base-thread
-addf parport.0.write base-thread
-addf parport.0.reset base-thread
+#addf parport.0.write base-thread
+#addf parport.0.reset base-thread
 
 addf stepgen.capture-position servo-thread
 addf motion-command-handler servo-thread
@@ -30,22 +30,22 @@ setp pwmgen.0.offset 0.114285714286
 setp pwmgen.0.dither-pwm true
 net spindle-cw <= motion.spindle-forward
 
-net estop-out => parport.0.pin-01-out
-net xstep => parport.0.pin-02-out
-setp parport.0.pin-02-out-reset 1
-net xdir => parport.0.pin-03-out
-net ystep => parport.0.pin-04-out
-setp parport.0.pin-04-out-reset 1
-net ydir => parport.0.pin-05-out
-net zstep => parport.0.pin-06-out
-setp parport.0.pin-06-out-reset 1
-net zdir => parport.0.pin-07-out
-net astep => parport.0.pin-08-out
-setp parport.0.pin-08-out-reset 1
-net adir => parport.0.pin-09-out
-net spindle-cw => parport.0.pin-14-out
-net spindle-pwm => parport.0.pin-16-out
-net xenable => parport.0.pin-17-out
+#net estop-out => parport.0.pin-01-out
+#net xstep => parport.0.pin-02-out
+#setp parport.0.pin-02-out-reset 1
+#net xdir => parport.0.pin-03-out
+#net ystep => parport.0.pin-04-out
+#setp parport.0.pin-04-out-reset 1
+#net ydir => parport.0.pin-05-out
+#net zstep => parport.0.pin-06-out
+#setp parport.0.pin-06-out-reset 1
+#net zdir => parport.0.pin-07-out
+#net astep => parport.0.pin-08-out
+#setp parport.0.pin-08-out-reset 1
+#net adir => parport.0.pin-09-out
+#net spindle-cw => parport.0.pin-14-out
+#net spindle-pwm => parport.0.pin-16-out
+#net xenable => parport.0.pin-17-out
 
 
 
