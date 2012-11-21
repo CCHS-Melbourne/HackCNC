@@ -1,0 +1,13 @@
+This folder contains the necessary elements for building an Arduino compatible 32u4 microprocessor firmware for interfacing with LinuxCNC.
+
+digitalWriteFast is an Arduino library dependancy and should be copied to the libraries sub-folder of the arduino IDE base folder before compiling the EMCArduino_07b firmware. EX: ~/arduino-1.0.1/libraries/digitalWriteFast
+
+EMCArduino_07b_LeoStick is the development firmware compatible with an Arduino based on a AT32u4 micro.
+
+linuxcnc is an example set of configuration files that work with the HackCNC. These are normally accessed by LinuxCNC if copied to ~/linuxcnc.
+
+----------
+This software is based on the work of others. Attribution and other information can be found as follows:
+digitalWriteFast - http://code.google.com/p/digitalwritefast/
+EMCArduino - http://emc2arduino.wordpress.com/
+LinuxCNC - http://www.linuxcnc.org/

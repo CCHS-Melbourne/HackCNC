@@ -1,0 +1,5 @@
+This folder contains software elements useful in working with the HackCNC project. 
+
+EmcArduinoFirmware contains the necessary elements for building an Arduino compatible 32u4 microprocessor firmware for interfacing with LinuxCNC.
+
+servo_calibrator has an Arduino program for testing and calibrating a servo motor by simple trial and error.

@@ -53,8 +53,8 @@ net spindle-cw <= motion.spindle-forward
 setp stepgen.0.position-scale [AXIS_0]SCALE
 setp stepgen.0.steplen 1
 setp stepgen.0.stepspace 0
-setp stepgen.0.dirhold 35000
-setp stepgen.0.dirsetup 35000
+setp stepgen.0.dirhold 3500
+setp stepgen.0.dirsetup 3500
 setp stepgen.0.maxaccel [AXIS_0]STEPGEN_MAXACCEL
 net xpos-cmd axis.0.motor-pos-cmd => stepgen.0.position-cmd
 net xpos-fb stepgen.0.position-fb => axis.0.motor-pos-fb
@@ -65,8 +65,8 @@ net xenable axis.0.amp-enable-out => stepgen.0.enable
 setp stepgen.1.position-scale [AXIS_1]SCALE
 setp stepgen.1.steplen 1
 setp stepgen.1.stepspace 0
-setp stepgen.1.dirhold 35000
-setp stepgen.1.dirsetup 35000
+setp stepgen.1.dirhold 350000
+setp stepgen.1.dirsetup 350000
 setp stepgen.1.maxaccel [AXIS_1]STEPGEN_MAXACCEL
 net ypos-cmd axis.1.motor-pos-cmd => stepgen.1.position-cmd
 net ypos-fb stepgen.1.position-fb => axis.1.motor-pos-fb

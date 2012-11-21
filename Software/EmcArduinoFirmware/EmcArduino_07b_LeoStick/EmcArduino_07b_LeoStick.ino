@@ -41,6 +41,14 @@ Note concerning switches: Be smart!
 // You'll need this library. Get the interrupt safe version.
 #include <digitalWriteFast.h> // http://code.google.com/p/digitalwritefast/
 
+
+#include <Servo.h> 
+
+//MUST BE AN INT!
+#define servoZeroZ 165
+Servo myservo;
+byte pos;
+
 //#define BAUD    (115200)
 #define BAUD 115200
 
@@ -48,8 +56,8 @@ Note concerning switches: Be smart!
 #define VERSION "00072"      // 5 caracters
 #define ROLE    "ALL-IN-ONE" // 10 characters
 
-#define stepsPerInchX 7620
-#define stepsPerInchY 7620
+#define stepsPerInchX 3800
+#define stepsPerInchY 3800
 #define stepsPerInchZ 3200
 #define stepsPerInchA 3200
 #define stepsPerInchB 3200
@@ -58,13 +66,12 @@ Note concerning switches: Be smart!
 #define stepsPerInchV 3200
 #define stepsPerInchW 3200
 
-#define minStepTime 25 //delay in MICROseconds between step pulses.
+//#define minStepTime 25 //delay in MICROseconds between step pulses.
+#define minStepTime 625
 
 // step pins (required)
-//#define stepPin0 54
-#define stepPin0 10
-//#define stepPin1 60
-#define stepPin1 8
+#define stepPin0 A0
+#define stepPin1 A2
 #define stepPin2 -1
 #define stepPin3 -1
 #define stepPin4 -1
@@ -74,10 +81,8 @@ Note concerning switches: Be smart!
 #define stepPin8 -1
 
 // dir pins (required)
-//#define dirPin0 55
-#define dirPin0 11
-//#define dirPin1 61
-#define dirPin1 9
+#define dirPin0 A1
+#define dirPin1 A3
 #define dirPin2 -1
 #define dirPin3 -1
 #define dirPin4 -1
@@ -115,8 +120,8 @@ Note concerning switches: Be smart!
 #define chanWms2 -1
 #define chanWms3 -1
 
-#define xEnablePin 38
-#define yEnablePin 56
+#define xEnablePin A4
+#define yEnablePin A5
 #define zEnablePin -1
 #define aEnablePin -1
 #define bEnablePin -1
@@ -200,18 +205,18 @@ Note concerning switches: Be smart!
 #define wMaxPin -1
 
 #define powerSwitchIsMomentary true // Set to true if your using a momentary switch.
-#define powerPin    -1 // Power switch. Optional
+#define powerPin    A0 // Power switch. Optional
 #define powerLedPin -1 // Power indicator. Optional
 
-#define eStopPin         -1 // E-Stop switch. You really, REALLY should have this one.
+#define eStopPin         A1 // E-Stop switch. You really, REALLY should have this one.
 #define eStopLedPin      -1 // E-Stop indicator. Optional
 
-#define probePin  -1 // CNC Touch probe input.     Optional
-#define startPin  -1 // CNC Program start switch.  Optional
-#define stopPin   -1 // CNC Stop program switch.   Optional
-#define pausePin  -1 // CNC Pause program switch.  Optional
-#define resumePin -1 // CNC Resume program switch. Optional
-#define stepPin   -1 // CNC Program step switch.   Optional
+#define probePin  A2 // CNC Touch probe input.     Optional
+#define startPin  A3 // CNC Program start switch.  Optional
+#define stopPin   A4 // CNC Stop program switch.   Optional
+#define pausePin  A5 // CNC Pause program switch.  Optional
+#define resumePin A6 // CNC Resume program switch. Optional
+#define stepPin   A7 // CNC Program step switch.   Optional
 
 // Spindle pin config
 #define spindleEnablePin         -1 // Optional
@@ -596,7 +601,8 @@ void processCommand()
       // These are axis move commands
       case 'x': case 'X': xx=atof(ptr+1); xx=xx/divisor; break;
       case 'y': case 'Y': yy=atof(ptr+1); yy=yy/divisor; break;
-      case 'z': case 'Z': zz=atof(ptr+1); zz=zz/divisor; break;
+      case 'z': case 'Z': zz=atof(ptr+1); zz=zz/divisor; move_servo(zz); break;
+//      case 'z': case 'Z': zz=atof(ptr+1); break;
       case 'a': case 'A': aa=atof(ptr+1); aa=aa/divisor; break;
       case 'b': case 'B': bb=atof(ptr+1); bb=bb/divisor; break;
       case 'c': case 'C': cc=atof(ptr+1); cc=cc/divisor; break;
@@ -610,12 +616,34 @@ void processCommand()
     default: ptr=0; break;
     }
   }
+  
+//  move_servo(zz);
+  
   jog(xx,yy,zz,aa,bb,cc,uu,vv,ww);
   if(globalBusy<15)
   {
     // Insert LCD call here. (Updated when mostly idle.) Future project.
   }
 }
+
+void move_servo(float pos){
+//  delay(100);
+  if(pos<0.0){
+    myservo.write(servoZeroZ-75);  
+//    myservo.write(100);
+//    Serial.print("Moving Z down now! Pos was: \n");
+//    Serial.print(pos);
+  }
+  else{
+    myservo.write(servoZeroZ);    
+//    myservo.write(165);
+//    Serial.print("Moving Z up now! Pos was: \n");
+//   Serial.print(pos);
+  }
+//  delay(10);
+  
+}
+
 
 void stepLight() // Set by jog() && Used by loop()
 {
@@ -627,24 +655,7 @@ void stepLight() // Set by jog() && Used by loop()
 
     if(stepper0Pos != stepper0Goto){busy++;if(stepper0Pos > stepper0Goto){digitalWriteFast2(dirPin0,!dirState0);digitalWriteFast2(stepPin0,stepState);stepper0Pos--;}else{digitalWriteFast2(dirPin0, dirState0);digitalWriteFast2(stepPin0,stepState);stepper0Pos++;}}
     if(stepper1Pos != stepper1Goto){busy++;if(stepper1Pos > stepper1Goto){digitalWriteFast2(dirPin1,!dirState1);digitalWriteFast2(stepPin1,stepState);stepper1Pos--;}else{digitalWriteFast2(dirPin1, dirState1);digitalWriteFast2(stepPin1,stepState);stepper1Pos++;}}
-    
-    // This should be the z axis.  split out to make it easier to follow
-    // Servo doesn't need direction and steps set, just a single pin.
-    // I' suggest using the direction pin.
-    // 
-    // John
-    if(stepper2Pos != stepper2Goto){
-      busy++;
-      if(stepper2Pos > stepper2Goto){
-        digitalWriteFast2(dirPin2,!dirState2);
-        digitalWriteFast2(stepPin2,stepState);
-        stepper2Pos--;
-      }else{
-        digitalWriteFast2(dirPin2, dirState2);
-        digitalWriteFast2(stepPin2,stepState);
-      stepper2Pos++;}
-    }
-    
+    if(stepper2Pos != stepper2Goto){busy++;if(stepper2Pos > stepper2Goto){digitalWriteFast2(dirPin2,!dirState2);digitalWriteFast2(stepPin2,stepState);stepper2Pos--;}else{digitalWriteFast2(dirPin2, dirState2);digitalWriteFast2(stepPin2,stepState);stepper2Pos++;}}
     if(stepper3Pos != stepper3Goto){busy++;if(stepper3Pos > stepper3Goto){digitalWriteFast2(dirPin3,!dirState3);digitalWriteFast2(stepPin3,stepState);stepper3Pos--;}else{digitalWriteFast2(dirPin3, dirState3);digitalWriteFast2(stepPin3,stepState);stepper3Pos++;}}
     if(stepper4Pos != stepper4Goto){busy++;if(stepper4Pos > stepper4Goto){digitalWriteFast2(dirPin4,!dirState4);digitalWriteFast2(stepPin4,stepState);stepper4Pos--;}else{digitalWriteFast2(dirPin4, dirState4);digitalWriteFast2(stepPin4,stepState);stepper4Pos++;}}
     if(stepper5Pos != stepper5Goto){busy++;if(stepper5Pos > stepper5Goto){digitalWriteFast2(dirPin5,!dirState5);digitalWriteFast2(stepPin5,stepState);stepper5Pos--;}else{digitalWriteFast2(dirPin5, dirState5);digitalWriteFast2(stepPin5,stepState);stepper5Pos++;}}
@@ -762,6 +773,11 @@ boolean spindleAtSpeed()
 
 void setup()
 {
+  //Servo pin 
+  myservo.attach(3);
+  //Go home.
+  move_servo(1);
+
   // If using a spindle tachometer, setup an interrupt for it.
   if(spindleTach>0){int result=determinInterrupt(spindleTach);attachInterrupt(result,countSpindleRevs,FALLING);}
   
@@ -864,11 +880,16 @@ void setup()
   pinMode(idleIndicator,OUTPUT);
 
   // Actually SET our microStepping mode. (If you must change this, re-adjust your stepsPerInch settings.)
-  stepMode(16,1);
+  stepMode(9,16);
   
   // Setup serial link.
   Serial.begin(BAUD);
   
+
+  while (!Serial) {
+    ; // wait for serial port to connect. Needed for Leonardo only
+  }
+
   // Initialize serial command buffer.
   sofar=0;
 }
