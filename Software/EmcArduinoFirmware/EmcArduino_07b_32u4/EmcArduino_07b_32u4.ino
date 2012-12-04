@@ -70,8 +70,8 @@ byte pos;
 #define minStepTime 625
 
 // step pins (required)
-#define stepPin0 A0
-#define stepPin1 A2
+#define stepPin0 30 //x step D10
+#define stepPin1 28 //y step D8
 #define stepPin2 -1
 #define stepPin3 -1
 #define stepPin4 -1
@@ -81,8 +81,8 @@ byte pos;
 #define stepPin8 -1
 
 // dir pins (required)
-#define dirPin0 A1
-#define dirPin1 A3
+#define dirPin0 12 //x dir D11
+#define dirPin1 29 //y dir D9
 #define dirPin2 -1
 #define dirPin3 -1
 #define dirPin4 -1
@@ -120,8 +120,8 @@ byte pos;
 #define chanWms2 -1
 #define chanWms3 -1
 
-#define xEnablePin A4
-#define yEnablePin A5
+#define xEnablePin -1
+#define yEnablePin -1
 #define zEnablePin -1
 #define aEnablePin -1
 #define bEnablePin -1
@@ -887,7 +887,7 @@ void setup()
   
 
   while (!Serial) {
-    ; // wait for serial port to connect. Needed for Leonardo only
+    ; // wait for serial port to connect. Needed for Leonardo/32u4
   }
 
   // Initialize serial command buffer.
