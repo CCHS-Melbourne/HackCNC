@@ -13,8 +13,6 @@ DigitalWriteFast	KEYWORD1
 #######################################
 
 digitalWriteFast	KEYWORD2
-digitalWriteFast2	KEYWORD2
 pinModeFast	KEYWORD2
-pinModeFast2	KEYWORD2
 digitalReadFast	KEYWORD2
-digitalReadFast2	KEYWORD2
+noAnalogWrite	KEYWORD2
