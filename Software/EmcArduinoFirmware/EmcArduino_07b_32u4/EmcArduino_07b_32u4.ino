@@ -44,8 +44,12 @@ Note concerning switches: Be smart!
 
 #include <Servo.h> 
 
-//MUST BE AN INT!
-#define servoZeroZ 165
+//Servo settings MUST BE AN INT! BETWENEN 0-180
+//servoDownZ is where your pen is engaged - pressing down 
+#define servoDownZ 165
+//servoUpZ is where your pen is disengaged - let up.
+#define servoUpZ 90
+
 Servo myservo;
 byte pos;
 
@@ -643,20 +647,18 @@ void processCommand()
 }
 
 void move_servo(float pos){
-//  delay(100);
-  if(pos<0.0){
-    myservo.write(servoZeroZ-75);  
-//    myservo.write(100);
-//    Serial.print("Moving Z down now! Pos was: \n");
-//    Serial.print(pos);
+  int diff=75;
+  if(pos<=-1.0){
+    myservo.write(servoDownZ);  
+  }
+  else if (pos>=0.0){
+    myservo.write(servoUpZ);    
   }
   else{
-    myservo.write(servoZeroZ);    
-//    myservo.write(165);
-//    Serial.print("Moving Z up now! Pos was: \n");
-//   Serial.print(pos);
+    diff = servoUpZ-servoDownZ;
+    //doesn't matter if diff is pos/neg - handles just fine.
+    myservo.write(servoUpZ+pos*diff);
   }
-//  delay(10);
   
 }
 
