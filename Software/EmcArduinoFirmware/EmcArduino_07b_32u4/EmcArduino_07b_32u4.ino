@@ -44,8 +44,12 @@ Note concerning switches: Be smart!
 
 #include <Servo.h> 
 
-//MUST BE AN INT!
-#define servoZeroZ 165
+//Servo settings MUST BE AN INT! BETWENEN 0-180
+//servoDownZ is where your pen is engaged - pressing down 
+#define servoDownZ 165
+//servoUpZ is where your pen is disengaged - let up.
+#define servoUpZ 90
+
 Servo myservo;
 byte pos;
 
@@ -71,22 +75,24 @@ byte pos;
 //set very low because it's essentiall digital, cutting down on z commands.
 #define stepsPerInchZ 1
 
-
+/*
 #define stepsPerInchA 3200
 #define stepsPerInchB 3200
 #define stepsPerInchC 3200
 #define stepsPerInchU 3200
 #define stepsPerInchV 3200
 #define stepsPerInchW 3200
+*/
 
 //#define minStepTime 25 //delay in MICROseconds between step pulses.
 //#define minStepTime 625
-#define minStepTime 75
+#define minStepTime 57
 
 // step pins (required)
 #define stepPin0 10 //x step D10 - pin 30
 #define stepPin1 8 //y step D8 - pin 28
 
+/*
 #define stepPin2 -1
 #define stepPin3 -1
 #define stepPin4 -1
@@ -94,11 +100,13 @@ byte pos;
 #define stepPin6 -1
 #define stepPin7 -1
 #define stepPin8 -1
+*/
 
 // dir pins (required)
 #define dirPin0 11 //x dir D11 - pin 12
 #define dirPin1 9 //y dir D9 - pin 29
 
+/*
 #define dirPin2 -1
 #define dirPin3 -1
 #define dirPin4 -1
@@ -106,8 +114,10 @@ byte pos;
 #define dirPin6 -1
 #define dirPin7 -1
 #define dirPin8 -1
+*/
 
 // microStepping pins (optional)
+/*
 #define chanXms1 -1
 #define chanXms2 -1
 #define chanXms3 -1
@@ -145,7 +155,7 @@ byte pos;
 #define uEnablePin -1
 #define vEnablePin -1
 #define wEnablePin -1
-
+*/
 #define useEstopSwitch  false
 #define usePowerSwitch  false
 #define useProbe        false
@@ -159,80 +169,83 @@ byte pos;
 #define useRealMinX false
 #define useRealMinY false
 #define useRealMinZ false
+/*
 #define useRealMinA false
 #define useRealMinB false
 #define useRealMinC false
 #define useRealMinU false
 #define useRealMinV false
 #define useRealMinW false
-
+*/
 // Set to true if your using real switches for HOME positions.
 #define useRealHomeX false
 #define useRealHomeY false
 #define useRealHomeZ false
+/*
 #define useRealHomeA false
 #define useRealHomeB false
 #define useRealHomeC false
 #define useRealHomeU false
 #define useRealHomeV false
 #define useRealHomeW false
-
+*/
 // Set to false if your using real switches for MAX positions.
 #define useRealMaxX false
 #define useRealMaxY false
 #define useRealMaxZ false
-#define useRealMaxA false
+/*#define useRealMaxA false
 #define useRealMaxB false
 #define useRealMaxC false
 #define useRealMaxU false
 #define useRealMaxV false
 #define useRealMaxW false
+*/
 
 // If your using REAL switches you'll need real pins (ignored if using Virtual switches).
 // -1 = not used.
 #define xMinPin -1
 #define yMinPin -1
 #define zMinPin -1
-#define aMinPin -1
+/*#define aMinPin -1
 #define bMinPin -1
 #define cMinPin -1
 #define uMinPin -1
 #define vMinPin -1
 #define wMinPin -1
-
+*/
 #define xHomePin -1
 #define yHomePin -1
 #define zHomePin -1
-#define aHomePin -1
+/*#define aHomePin -1
 #define bHomePin -1
 #define cHomePin -1
 #define uHomePin -1
 #define vHomePin -1
 #define wHomePin -1
-
+*/
 #define xMaxPin -1
 #define yMaxPin -1
 #define zMaxPin -1
-#define aMaxPin -1
+/*#define aMaxPin -1
 #define bMaxPin -1
 #define cMaxPin -1
 #define uMaxPin -1
 #define vMaxPin -1
 #define wMaxPin -1
-
+*/
 #define powerSwitchIsMomentary true // Set to true if your using a momentary switch.
-#define powerPin    A0 // Power switch. Optional
+#define powerPin    -1 // Power switch. Optional
 #define powerLedPin -1 // Power indicator. Optional
 
-#define eStopPin         A1 // E-Stop switch. You really, REALLY should have this one.
+#define eStopPin         -1 // E-Stop switch. You really, REALLY should have this one.
 #define eStopLedPin      -1 // E-Stop indicator. Optional
 
-#define probePin  A2 // CNC Touch probe input.     Optional
-#define startPin  A3 // CNC Program start switch.  Optional
-#define stopPin   A4 // CNC Stop program switch.   Optional
-#define pausePin  A5 // CNC Pause program switch.  Optional
-#define resumePin A6 // CNC Resume program switch. Optional
-#define stepPin   A7 // CNC Program step switch.   Optional
+#define probePin  -1 // CNC Touch probe input.     Optional
+#define startPin  -1 // CNC Program start switch.  Optional
+#define stopPin   -1 // CNC Stop program switch.   Optional
+#define pausePin  -1 // CNC Pause program switch.  Optional
+#define resumePin -1 // CNC Resume program switch. Optional
+#define stepPin   -1 // CNC Program step switch.   Optional
 
 // Spindle pin config
 #define spindleEnablePin         -1 // Optional
@@ -254,33 +267,34 @@ byte pos;
 #define xMinPinInverted false
 #define yMinPinInverted false
 #define zMinPinInverted false
+/*
 #define aMinPinInverted false
 #define bMinPinInverted false
 #define cMinPinInverted false
 #define uMinPinInverted false
 #define vMinPinInverted false
 #define wMinPinInverted false
-
+*/
 #define xHomePinInverted false
 #define yHomePinInverted false
 #define zHomePinInverted false
-#define aHomePinInverted false
+/*#define aHomePinInverted false
 #define bHomePinInverted false
 #define cHomePinInverted false
 #define uHomePinInverted false
 #define vHomePinInverted false
 #define wHomePinInverted false
-
+*/
 #define xMaxPinInverted false
 #define yMaxPinInverted false
 #define zMaxPinInverted false
-#define aMaxPinInverted false
+/*#define aMaxPinInverted false
 #define bMaxPinInverted false
 #define cMaxPinInverted false
 #define uMaxPinInverted false
 #define vMaxPinInverted false
 #define wMaxPinInverted false
-
+*/
 #define eStopPinInverted  false
 #define powerPinInverted  false
 #define probePinInverted  false
@@ -295,47 +309,47 @@ byte pos;
 #define xMin -5.1
 #define yMin -5.1
 #define zMin -5.1
-#define aMin -5.1
+/*#define aMin -5.1
 #define bMin -5.1
 #define cMin -5.1
 #define uMin -5.1
 #define vMin -5.1
 #define wMin -5.1
-
+*/
 // Where should the VIRTUAL home switches be set to (ignored if using real switches).
 // Set to whatever you specified in the StepConf wizard.
 #define xHome 0
 #define yHome 0
 #define zHome 0
-#define aHome 0
+/*#define aHome 0
 #define bHome 0
 #define cHome 0
 #define uHome 0
 #define vHome 0
 #define wHome 0
-
+*/
 // Where should the VIRTUAL Max switches be set to (ignored if using real switches).
 // Set to whatever you specified in the StepConf wizard.
 #define xMax 15.1
 #define yMax 15.1
 #define zMax 15.1
-#define aMax 15.1
+/*#define aMax 15.1
 #define bMax 15.1
 #define cMax 15.1
 #define uMax 15.1
 #define vMax 15.1
 #define wMax 15.1
-
+*/
 #define giveFeedBackX false
 #define giveFeedBackY false
 #define giveFeedBackZ false
-#define giveFeedBackA false
+/*#define giveFeedBackA false
 #define giveFeedBackB false
 #define giveFeedBackC false
 #define giveFeedBackU false
 #define giveFeedBackV false
 #define giveFeedBackW false
-
+*/
 /*
   This indicator led will let you know how hard you pushing the Arduino.
 
@@ -354,13 +368,13 @@ byte pos;
 boolean dirState0=true;
 boolean dirState1=true;
 boolean dirState2=true;
-boolean dirState3=true;
+/*boolean dirState3=true;
 boolean dirState4=true;
 boolean dirState5=true;
 boolean dirState6=true;
 boolean dirState7=true;
 boolean dirState8=true;
-
+*/
 ////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////END OF USER SETTINGS///////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
@@ -371,15 +385,15 @@ int sofar;
 float pos_x;
 float pos_y;
 float pos_z;
-float pos_a;
+/*float pos_a;
 float pos_b;
 float pos_c;
 float pos_u;
 float pos_v;
 float pos_w;
-
-float revs_in=0;
-float spindleRPSin=0;
+*/
+//float revs_in=0;
+//float spindleRPSin=0;
 
 boolean stepState=LOW;
 unsigned long stepTimeOld=0;
@@ -390,7 +404,7 @@ long stepper1Pos=0;
 long stepper1Goto=0;
 long stepper2Pos=0;
 long stepper2Goto=0;
-long stepper3Pos=0;
+/*long stepper3Pos=0;
 long stepper3Goto=0;
 long stepper4Pos=0;
 long stepper4Goto=0;
@@ -402,76 +416,86 @@ long stepper7Pos=0;
 long stepper7Goto=0;
 long stepper8Pos=0;
 long stepper8Goto=0;
+*/
 int stepModeX=-1; // don't set these here, look at stepMode() for info.
 int stepModeY=-1;
 int stepModeZ=-1;
+/*
 int stepModeA=-1;
 int stepModeB=-1;
 int stepModeC=-1;
 int stepModeU=-1;
 int stepModeV=-1;
 int stepModeW=-1;
-
+*/
 boolean xMinState=false;
 boolean yMinState=false;
 boolean zMinState=false;
-boolean aMinState=false;
+/*boolean aMinState=false;
 boolean bMinState=false;
 boolean cMinState=false;
 boolean uMinState=false;
 boolean vMinState=false;
 boolean wMinState=false;
+*/
 boolean xMinStateOld=false;
 boolean yMinStateOld=false;
 boolean zMinStateOld=false;
+/*
 boolean aMinStateOld=false;
 boolean bMinStateOld=false;
 boolean cMinStateOld=false;
 boolean uMinStateOld=false;
 boolean vMinStateOld=false;
 boolean wMinStateOld=false;
-
+*/
 boolean xHomeState=false;
 boolean yHomeState=false;
 boolean zHomeState=false;
+/*
 boolean aHomeState=false;
 boolean bHomeState=false;
 boolean cHomeState=false;
 boolean uHomeState=false;
 boolean vHomeState=false;
 boolean wHomeState=false;
+*/
 boolean xHomeStateOld=false;
 boolean yHomeStateOld=false;
 boolean zHomeStateOld=false;
+/*
 boolean aHomeStateOld=false;
 boolean bHomeStateOld=false;
 boolean cHomeStateOld=false;
 boolean uHomeStateOld=false;
 boolean vHomeStateOld=false;
 boolean wHomeStateOld=false;
-
+*/
 boolean xMaxState=false;
 boolean yMaxState=false;
 boolean zMaxState=false;
+/*
 boolean aMaxState=false;
 boolean bMaxState=false;
 boolean cMaxState=false;
 boolean uMaxState=false;
 boolean vMaxState=false;
 boolean wMaxState=false;
+*/
 boolean xMaxStateOld=false;
 boolean yMaxStateOld=false;
 boolean zMaxStateOld=false;
+/*
 boolean aMaxStateOld=false;
 boolean bMaxStateOld=false;
 boolean cMaxStateOld=false;
 boolean uMaxStateOld=false;
 boolean vMaxStateOld=false;
 boolean wMaxStateOld=false;
-
+*/
 boolean eStopStateOld=false;
 boolean powerStateOld=false;
-boolean probeStateOld=false;
+//boolean probeStateOld=false;
 boolean startStateOld=false;
 boolean stopStateOld=false;
 boolean pauseStateOld=false;
@@ -485,113 +509,121 @@ long divisor=1000000; // input divisor. Our HAL script wont send the six decimal
                       // Used in: processCommand()
 
 boolean psuState=powerSupplyInverted;
-boolean spindleState=spindleDirectionInverted;
+//boolean spindleState=spindleDirectionInverted;
 
 float fbx=1;
 float fby=1;
 float fbz=1;
+/*
 float fba=1;
 float fbb=1;
 float fbc=1;
 float fbu=1;
 float fbv=1;
 float fbw=1;
+*/
 
 float fbxOld=0;
 float fbyOld=0;
 float fbzOld=0;
+/*
 float fbaOld=0;
 float fbbOld=0;
 float fbcOld=0;
 float fbuOld=0;
 float fbvOld=0;
 float fbwOld=0;
+*/
 
-
-void jog(float x, float y, float z, float a, float b, float c, float u, float v, float w)
+//void jog(float x, float y, float z, float a, float b, float c, float u, float v, float w)
+void jog(float x, float y, float z)
 {
   pos_x=x;
   pos_y=y;
   pos_z=z;
-  pos_a=a;
+/*  pos_a=a;
   pos_b=b;
   pos_c=c;
   pos_u=u;
   pos_v=v;
   pos_w=w;
+*/
+
   // Handle our limit switches.
     // Compressed to save visual space. Otherwise it would be several pages long!
     
   if(!useRealMinX){if(pos_x > xMin){xMinState=true;}else{xMinState=false;}}else{xMinState=digitalReadFast(xMinPin);if(xMinPinInverted)xMinState=!xMinState;}
   if(!useRealMinY){if(pos_y > yMin){yMinState=true;}else{yMinState=false;}}else{yMinState=digitalReadFast(yMinPin);if(yMinPinInverted)yMinState=!yMinState;}
   if(!useRealMinZ){if(pos_z > zMin){zMinState=true;}else{zMinState=false;}}else{zMinState=digitalReadFast(zMinPin);if(zMinPinInverted)zMinState=!zMinState;}
-  if(!useRealMinA){if(pos_a > aMin){aMinState=true;}else{aMinState=false;}}else{aMinState=digitalReadFast(aMinPin);if(aMinPinInverted)aMinState=!aMinState;}
+/*  if(!useRealMinA){if(pos_a > aMin){aMinState=true;}else{aMinState=false;}}else{aMinState=digitalReadFast(aMinPin);if(aMinPinInverted)aMinState=!aMinState;}
   if(!useRealMinB){if(pos_b > bMin){bMinState=true;}else{bMinState=false;}}else{bMinState=digitalReadFast(bMinPin);if(bMinPinInverted)bMinState=!bMinState;}
   if(!useRealMinC){if(pos_c > cMin){cMinState=true;}else{cMinState=false;}}else{cMinState=digitalReadFast(cMinPin);if(cMinPinInverted)cMinState=!cMinState;}
   if(!useRealMinU){if(pos_u > uMin){uMinState=true;}else{uMinState=false;}}else{uMinState=digitalReadFast(uMinPin);if(uMinPinInverted)uMinState=!uMinState;}
   if(!useRealMinV){if(pos_v > vMin){vMinState=true;}else{vMinState=false;}}else{vMinState=digitalReadFast(vMinPin);if(vMinPinInverted)vMinState=!vMinState;}
   if(!useRealMinW){if(pos_w > wMin){wMinState=true;}else{wMinState=false;}}else{wMinState=digitalReadFast(wMinPin);if(wMinPinInverted)wMinState=!wMinState;}
+*/
 
   if(!useRealMaxX){if(pos_x > xMax){xMaxState=true;}else{xMaxState=false;}}else{xMaxState=digitalReadFast(xMaxPin);if(xMaxPinInverted)xMaxState=!xMaxState;}
   if(!useRealMaxY){if(pos_y > yMax){yMaxState=true;}else{yMaxState=false;}}else{yMaxState=digitalReadFast(yMaxPin);if(yMaxPinInverted)yMaxState=!yMaxState;}
   if(!useRealMaxZ){if(pos_z > zMax){zMaxState=true;}else{zMaxState=false;}}else{zMaxState=digitalReadFast(zMaxPin);if(zMaxPinInverted)zMaxState=!zMaxState;}
+/*
   if(!useRealMaxA){if(pos_a > aMax){aMaxState=true;}else{aMaxState=false;}}else{aMaxState=digitalReadFast(aMaxPin);if(aMaxPinInverted)aMaxState=!aMaxState;}
   if(!useRealMaxB){if(pos_b > bMax){bMaxState=true;}else{bMaxState=false;}}else{bMaxState=digitalReadFast(bMaxPin);if(bMaxPinInverted)bMaxState=!bMaxState;}
   if(!useRealMaxC){if(pos_c > cMax){cMaxState=true;}else{cMaxState=false;}}else{cMaxState=digitalReadFast(cMaxPin);if(cMaxPinInverted)cMaxState=!cMaxState;}
   if(!useRealMaxU){if(pos_u > uMax){uMaxState=true;}else{uMaxState=false;}}else{uMaxState=digitalReadFast(uMaxPin);if(uMaxPinInverted)uMaxState=!uMaxState;}
   if(!useRealMaxV){if(pos_v > vMax){vMaxState=true;}else{vMaxState=false;}}else{vMaxState=digitalReadFast(vMaxPin);if(vMaxPinInverted)vMaxState=!vMaxState;}
   if(!useRealMaxW){if(pos_w > wMax){wMaxState=true;}else{wMaxState=false;}}else{wMaxState=digitalReadFast(wMaxPin);if(wMaxPinInverted)wMaxState=!wMaxState;}
-
+*/
   if(!useRealHomeX){if(pos_x > xHome){xHomeState=true;}else{xHomeState=false;}}else{xHomeState=digitalReadFast(xHomePin);if(xHomePinInverted)xHomeState=!xHomeState;}
   if(!useRealHomeY){if(pos_y > yHome){yHomeState=true;}else{yHomeState=false;}}else{yHomeState=digitalReadFast(yHomePin);if(yHomePinInverted)yHomeState=!yHomeState;}
   if(!useRealHomeZ){if(pos_z > zHome){zHomeState=true;}else{zHomeState=false;}}else{zHomeState=digitalReadFast(zHomePin);if(zHomePinInverted)zHomeState=!zHomeState;}
-  if(!useRealHomeA){if(pos_a > aHome){aHomeState=true;}else{aHomeState=false;}}else{aHomeState=digitalReadFast(aHomePin);if(aHomePinInverted)aHomeState=!aHomeState;}
+/*  if(!useRealHomeA){if(pos_a > aHome){aHomeState=true;}else{aHomeState=false;}}else{aHomeState=digitalReadFast(aHomePin);if(aHomePinInverted)aHomeState=!aHomeState;}
   if(!useRealHomeB){if(pos_b > bHome){bHomeState=true;}else{bHomeState=false;}}else{bHomeState=digitalReadFast(bHomePin);if(bHomePinInverted)bHomeState=!bHomeState;}
   if(!useRealHomeC){if(pos_c > cHome){cHomeState=true;}else{cHomeState=false;}}else{cHomeState=digitalReadFast(cHomePin);if(cHomePinInverted)cHomeState=!cHomeState;}
   if(!useRealHomeU){if(pos_u > uHome){uHomeState=true;}else{uHomeState=false;}}else{uHomeState=digitalReadFast(uHomePin);if(uHomePinInverted)uHomeState=!uHomeState;}
   if(!useRealHomeV){if(pos_v > vHome){vHomeState=true;}else{vHomeState=false;}}else{vHomeState=digitalReadFast(vHomePin);if(vHomePinInverted)vHomeState=!vHomeState;}
   if(!useRealHomeW){if(pos_w > wHome){wHomeState=true;}else{wHomeState=false;}}else{wHomeState=digitalReadFast(wHomePin);if(wHomePinInverted)wHomeState=!wHomeState;}
-
+*/
   if(xMinState != xMinStateOld){xMinStateOld=xMinState;Serial.print("x");Serial.print(xMinState);}
   if(yMinState != yMinStateOld){yMinStateOld=yMinState;Serial.print("y");Serial.print(yMinState);}
   if(zMinState != zMinStateOld){zMinStateOld=zMinState;Serial.print("z");Serial.print(zMinState);}
-  if(aMinState != aMinStateOld){aMinStateOld=aMinState;Serial.print("a");Serial.print(aMinState);}
+/*  if(aMinState != aMinStateOld){aMinStateOld=aMinState;Serial.print("a");Serial.print(aMinState);}
   if(bMinState != bMinStateOld){bMinStateOld=bMinState;Serial.print("b");Serial.print(bMinState);}
   if(cMinState != cMinStateOld){cMinStateOld=cMinState;Serial.print("c");Serial.print(cMinState);}
   if(uMinState != uMinStateOld){uMinStateOld=uMinState;Serial.print("u");Serial.print(uMinState);}
   if(vMinState != vMinStateOld){vMinStateOld=vMinState;Serial.print("v");Serial.print(vMinState);}
   if(wMinState != wMinStateOld){wMinStateOld=wMinState;Serial.print("w");Serial.print(wMinState);}
-
+*/
   if(xHomeState != xHomeStateOld){xHomeStateOld=xHomeState;Serial.print("x");Serial.print(xHomeState+4);}
   if(yHomeState != yHomeStateOld){yHomeStateOld=yHomeState;Serial.print("y");Serial.print(yHomeState+4);}
   if(zHomeState != zHomeStateOld){zHomeStateOld=zHomeState;Serial.print("z");Serial.print(zHomeState+4);}
-  if(aHomeState != aHomeStateOld){aHomeStateOld=aHomeState;Serial.print("a");Serial.print(aHomeState+4);}
+/*  if(aHomeState != aHomeStateOld){aHomeStateOld=aHomeState;Serial.print("a");Serial.print(aHomeState+4);}
   if(bHomeState != bHomeStateOld){bHomeStateOld=bHomeState;Serial.print("b");Serial.print(bHomeState+4);}
   if(cHomeState != cHomeStateOld){cHomeStateOld=cHomeState;Serial.print("c");Serial.print(cHomeState+4);}
   if(uHomeState != uHomeStateOld){uHomeStateOld=uHomeState;Serial.print("u");Serial.print(uHomeState+4);}
   if(vHomeState != vHomeStateOld){vHomeStateOld=vHomeState;Serial.print("v");Serial.print(vHomeState+4);}
   if(wHomeState != wHomeStateOld){wHomeStateOld=wHomeState;Serial.print("w");Serial.print(wHomeState+4);}
-
+*/
   if(xMaxState != xMaxStateOld){xMaxStateOld=xMaxState;Serial.print("x");Serial.print(xMaxState+1);}
   if(yMaxState != yMaxStateOld){yMaxStateOld=yMaxState;Serial.print("y");Serial.print(yMaxState+1);}
   if(zMaxState != zMaxStateOld){zMaxStateOld=zMaxState;Serial.print("z");Serial.print(zMaxState+1);}
-  if(aMaxState != aMaxStateOld){aMaxStateOld=aMaxState;Serial.print("a");Serial.print(aMaxState+1);}
+/*  if(aMaxState != aMaxStateOld){aMaxStateOld=aMaxState;Serial.print("a");Serial.print(aMaxState+1);}
   if(bMaxState != bMaxStateOld){bMaxStateOld=bMaxState;Serial.print("b");Serial.print(bMaxState+1);}
   if(cMaxState != cMaxStateOld){cMaxStateOld=cMaxState;Serial.print("c");Serial.print(cMaxState+1);}
   if(uMaxState != uMaxStateOld){uMaxStateOld=uMaxState;Serial.print("u");Serial.print(uMaxState+1);}
   if(vMaxState != vMaxStateOld){vMaxStateOld=vMaxState;Serial.print("v");Serial.print(vMaxState+1);}
   if(wMaxState != wMaxStateOld){wMaxStateOld=wMaxState;Serial.print("w");Serial.print(wMaxState+1);}
-
+*/
   if(xMinState && !xMaxState)stepper0Goto=pos_x*stepsPerInchX*2;
   if(yMinState && !yMaxState)stepper1Goto=pos_y*stepsPerInchY*2;
   if(zMinState && !zMaxState)stepper2Goto=pos_z*stepsPerInchZ*2; // we need the *2 as we're driving a flip-flop routine (in stepLight function)
-  if(aMinState && !aMaxState)stepper3Goto=pos_a*stepsPerInchA*2;
+/*  if(aMinState && !aMaxState)stepper3Goto=pos_a*stepsPerInchA*2;
   if(bMinState && !bMaxState)stepper4Goto=pos_b*stepsPerInchB*2;
   if(cMinState && !cMaxState)stepper5Goto=pos_c*stepsPerInchC*2;
   if(uMinState && !uMaxState)stepper6Goto=pos_u*stepsPerInchU*2;
   if(vMinState && !vMaxState)stepper7Goto=pos_v*stepsPerInchV*2;
   if(wMinState && !wMaxState)stepper8Goto=pos_w*stepsPerInchW*2;
-
+*/
 }
 
 void processCommand()
@@ -599,7 +631,7 @@ void processCommand()
     float xx=pos_x;
     float yy=pos_y;
     float zz=pos_z;
-    float aa=pos_a;
+/*    float aa=pos_a;
     float bb=pos_b;
     float cc=pos_c;
     float uu=pos_u;
@@ -607,7 +639,7 @@ void processCommand()
     float ww=pos_w;
 
     float ss=revs_in;
-
+*/
   char *ptr=buffer;
   while(ptr && ptr<buffer+sofar)
   {
@@ -619,23 +651,22 @@ void processCommand()
       case 'y': case 'Y': yy=atof(ptr+1); yy=yy/divisor; break;
       case 'z': case 'Z': zz=atof(ptr+1); zz=zz/divisor; move_servo(zz); break;
 //      case 'z': case 'Z': zz=atof(ptr+1); break;
-      case 'a': case 'A': aa=atof(ptr+1); aa=aa/divisor; break;
+/*      case 'a': case 'A': aa=atof(ptr+1); aa=aa/divisor; break;
       case 'b': case 'B': bb=atof(ptr+1); bb=bb/divisor; break;
       case 'c': case 'C': cc=atof(ptr+1); cc=cc/divisor; break;
       case 'u': case 'U': uu=atof(ptr+1); uu=uu/divisor; break;
       case 'v': case 'V': vv=atof(ptr+1); vv=vv/divisor; break;
       case 'w': case 'W': ww=atof(ptr+1); ww=ww/divisor; break;
-      
+*/      
       // Spindle speed command. In revs per second
-      case 's': case 'S': ss=atof(ptr+1); spindleRPSin=ss; break;
+//      case 's': case 'S': ss=atof(ptr+1); spindleRPSin=ss; break;
 
     default: ptr=0; break;
     }
   }
   
-//  move_servo(zz);
-  
-  jog(xx,yy,zz,aa,bb,cc,uu,vv,ww);
+//  jog(xx,yy,zz,aa,bb,cc,uu,vv,ww);
+  jog(xx,yy,zz);
   if(globalBusy<15)
   {
     // Insert LCD call here. (Updated when mostly idle.) Future project.
@@ -669,29 +700,32 @@ void stepLight() // Set by jog() && Used by loop()
 
     if(stepper0Pos != stepper0Goto){busy++;if(stepper0Pos > stepper0Goto){digitalWriteFast(dirPin0,!dirState0);digitalWriteFast(stepPin0,stepState);stepper0Pos--;}else{digitalWriteFast(dirPin0, dirState0);digitalWriteFast(stepPin0,stepState);stepper0Pos++;}}
     if(stepper1Pos != stepper1Goto){busy++;if(stepper1Pos > stepper1Goto){digitalWriteFast(dirPin1,!dirState1);digitalWriteFast(stepPin1,stepState);stepper1Pos--;}else{digitalWriteFast(dirPin1, dirState1);digitalWriteFast(stepPin1,stepState);stepper1Pos++;}}
-    if(stepper2Pos != stepper2Goto){busy++;if(stepper2Pos > stepper2Goto){digitalWriteFast(dirPin2,!dirState2);digitalWriteFast(stepPin2,stepState);stepper2Pos--;}else{digitalWriteFast(dirPin2, dirState2);digitalWriteFast(stepPin2,stepState);stepper2Pos++;}}
-    if(stepper3Pos != stepper3Goto){busy++;if(stepper3Pos > stepper3Goto){digitalWriteFast(dirPin3,!dirState3);digitalWriteFast(stepPin3,stepState);stepper3Pos--;}else{digitalWriteFast(dirPin3, dirState3);digitalWriteFast(stepPin3,stepState);stepper3Pos++;}}
+//    if(stepper2Pos != stepper2Goto){busy++;if(stepper2Pos > stepper2Goto){digitalWriteFast(dirPin2,!dirState2);digitalWriteFast(stepPin2,stepState);stepper2Pos--;}else{digitalWriteFast(dirPin2, dirState2);digitalWriteFast(stepPin2,stepState);stepper2Pos++;}}
+/*    if(stepper3Pos != stepper3Goto){busy++;if(stepper3Pos > stepper3Goto){digitalWriteFast(dirPin3,!dirState3);digitalWriteFast(stepPin3,stepState);stepper3Pos--;}else{digitalWriteFast(dirPin3, dirState3);digitalWriteFast(stepPin3,stepState);stepper3Pos++;}}
     if(stepper4Pos != stepper4Goto){busy++;if(stepper4Pos > stepper4Goto){digitalWriteFast(dirPin4,!dirState4);digitalWriteFast(stepPin4,stepState);stepper4Pos--;}else{digitalWriteFast(dirPin4, dirState4);digitalWriteFast(stepPin4,stepState);stepper4Pos++;}}
     if(stepper5Pos != stepper5Goto){busy++;if(stepper5Pos > stepper5Goto){digitalWriteFast(dirPin5,!dirState5);digitalWriteFast(stepPin5,stepState);stepper5Pos--;}else{digitalWriteFast(dirPin5, dirState5);digitalWriteFast(stepPin5,stepState);stepper5Pos++;}}
     if(stepper6Pos != stepper6Goto){busy++;if(stepper6Pos > stepper6Goto){digitalWriteFast(dirPin6,!dirState6);digitalWriteFast(stepPin6,stepState);stepper6Pos--;}else{digitalWriteFast(dirPin6, dirState6);digitalWriteFast(stepPin6,stepState);stepper6Pos++;}}
     if(stepper7Pos != stepper7Goto){busy++;if(stepper7Pos > stepper7Goto){digitalWriteFast(dirPin7,!dirState7);digitalWriteFast(stepPin7,stepState);stepper7Pos--;}else{digitalWriteFast(dirPin7, dirState7);digitalWriteFast(stepPin7,stepState);stepper7Pos++;}}
     if(stepper8Pos != stepper8Goto){busy++;if(stepper8Pos > stepper8Goto){digitalWriteFast(dirPin8,!dirState8);digitalWriteFast(stepPin8,stepState);stepper8Pos--;}else{digitalWriteFast(dirPin8, dirState8);digitalWriteFast(stepPin8,stepState);stepper8Pos++;}}
+*/    
     if(busy){digitalWriteFast(idleIndicator,LOW);if(globalBusy<255){globalBusy++;}}else{digitalWriteFast(idleIndicator,HIGH);if(globalBusy>0){globalBusy--;}
       if(giveFeedBackX){fbx=stepper0Pos/4/(stepsPerInchX*0.5);if(!busy){if(fbx!=fbxOld){fbxOld=fbx;Serial.print("fx");Serial.println(fbx,6);}}}
       if(giveFeedBackY){fby=stepper1Pos/4/(stepsPerInchY*0.5);if(!busy){if(fby!=fbyOld){fbyOld=fby;Serial.print("fy");Serial.println(fby,6);}}}
       if(giveFeedBackZ){fbz=stepper2Pos/4/(stepsPerInchZ*0.5);if(!busy){if(fbz!=fbzOld){fbzOld=fbz;Serial.print("fz");Serial.println(fbz,6);}}}
-      if(giveFeedBackA){fba=stepper3Pos/4/(stepsPerInchA*0.5);if(!busy){if(fba!=fbaOld){fbaOld=fba;Serial.print("fa");Serial.println(fba,6);}}}
+/*      if(giveFeedBackA){fba=stepper3Pos/4/(stepsPerInchA*0.5);if(!busy){if(fba!=fbaOld){fbaOld=fba;Serial.print("fa");Serial.println(fba,6);}}}
       if(giveFeedBackB){fbb=stepper4Pos/4/(stepsPerInchB*0.5);if(!busy){if(fbb!=fbbOld){fbbOld=fbb;Serial.print("fb");Serial.println(fbb,6);}}}
       if(giveFeedBackC){fbc=stepper5Pos/4/(stepsPerInchC*0.5);if(!busy){if(fbc!=fbcOld){fbcOld=fbc;Serial.print("fc");Serial.println(fbc,6);}}}
       if(giveFeedBackU){fbu=stepper6Pos/4/(stepsPerInchU*0.5);if(!busy){if(fbu!=fbuOld){fbuOld=fbu;Serial.print("fu");Serial.println(fbu,6);}}}
       if(giveFeedBackV){fbv=stepper7Pos/4/(stepsPerInchV*0.5);if(!busy){if(fbv!=fbvOld){fbvOld=fbv;Serial.print("fv");Serial.println(fbv,6);}}}
       if(giveFeedBackW){fbw=stepper8Pos/4/(stepsPerInchW*0.5);if(!busy){if(fbw!=fbwOld){fbwOld=fbw;Serial.print("fw");Serial.println(fbw,6);}}}
+*/
     }
 
     stepTimeOld=curTime;
   }
 }
 
+/*
 void stepMode(int axis, int mode) // May be omitted in the future. (Undecided)
 {
   // called just once during setup()
@@ -725,8 +759,10 @@ void stepMode(int axis, int mode) // May be omitted in the future. (Undecided)
   if(axis == 6 || 9){if(mode!=stepModeU){digitalWriteFast(chanUms1,ms1);digitalWriteFast(chanUms2,ms2);digitalWriteFast(chanUms3,ms3);stepModeU=count;}}
   if(axis == 7 || 9){if(mode!=stepModeV){digitalWriteFast(chanVms1,ms1);digitalWriteFast(chanVms2,ms2);digitalWriteFast(chanVms3,ms3);stepModeV=count;}}
   if(axis == 8 || 9){if(mode!=stepModeW){digitalWriteFast(chanWms1,ms1);digitalWriteFast(chanWms2,ms2);digitalWriteFast(chanWms3,ms3);stepModeW=count;}}
-}
 
+}
+*/
+/*
 int determinInterrupt(int val)
 {
   if(val<0) return -1;
@@ -737,7 +773,9 @@ int determinInterrupt(int val)
   if(val==20) return 3;
   if(val==21) return 2;
 }
+*/
 
+/*
 volatile unsigned long spindleRevs=0;
 float spindleRPS=0;
 float spindleRPM=0;
@@ -768,11 +806,11 @@ boolean spindleAtSpeed()
     if(spindleRPSin<spindleRPS)
     {
       if(spindleRPSin*1.05<spindleRPS || !spindleEnabled)
-      { /* Slow down. */
+      { // Slow down. 
         if(spindleEnablePin>0){digitalWriteFast(spindleEnablePin,!spindleEnableState);}
       }else{
         if(spindleEnabled)
-        { /* Speed up. */
+        { // Speed up. 
           if(spindleEnablePin>0){digitalWriteFast(spindleEnablePin,spindleEnableState);}
         }
       }
@@ -784,6 +822,7 @@ boolean spindleAtSpeed()
     return spindleEnabled; // No tach? We'll fake it.
   }
 }
+*/
 
 void setup()
 {
@@ -793,42 +832,45 @@ void setup()
   move_servo(1);
 
   // If using a spindle tachometer, setup an interrupt for it.
-  if(spindleTach>0){int result=determinInterrupt(spindleTach);attachInterrupt(result,countSpindleRevs,FALLING);}
+//  if(spindleTach>0){int result=determinInterrupt(spindleTach);attachInterrupt(result,countSpindleRevs,FALLING);}
   
   // Setup Min limit switches.
-  if(useRealMinX){pinMode(xMinPin,INPUT);if(!xMinPinInverted)digitalWriteFast(xMinPin,HIGH);}
-  if(useRealMinY){pinMode(yMinPin,INPUT);if(!yMinPinInverted)digitalWriteFast(yMinPin,HIGH);}
-  if(useRealMinZ){pinMode(zMinPin,INPUT);if(!zMinPinInverted)digitalWriteFast(zMinPin,HIGH);}
-  if(useRealMinA){pinMode(aMinPin,INPUT);if(!aMinPinInverted)digitalWriteFast(aMinPin,HIGH);}
+//  if(useRealMinX){pinMode(xMinPin,INPUT);if(!xMinPinInverted)digitalWriteFast(xMinPin,HIGH);}
+//  if(useRealMinY){pinMode(yMinPin,INPUT);if(!yMinPinInverted)digitalWriteFast(yMinPin,HIGH);}
+//  if(useRealMinZ){pinMode(zMinPin,INPUT);if(!zMinPinInverted)digitalWriteFast(zMinPin,HIGH);}
+/*  if(useRealMinA){pinMode(aMinPin,INPUT);if(!aMinPinInverted)digitalWriteFast(aMinPin,HIGH);}
   if(useRealMinB){pinMode(bMinPin,INPUT);if(!bMinPinInverted)digitalWriteFast(bMinPin,HIGH);}
   if(useRealMinC){pinMode(cMinPin,INPUT);if(!cMinPinInverted)digitalWriteFast(cMinPin,HIGH);}
   if(useRealMinU){pinMode(uMinPin,INPUT);if(!uMinPinInverted)digitalWriteFast(uMinPin,HIGH);}
   if(useRealMinV){pinMode(vMinPin,INPUT);if(!vMinPinInverted)digitalWriteFast(vMinPin,HIGH);}
   if(useRealMinW){pinMode(wMinPin,INPUT);if(!wMinPinInverted)digitalWriteFast(wMinPin,HIGH);}
-
+*/
   // Setup Max limit switches.
-  if(useRealMaxX){pinMode(xMaxPin,INPUT);if(!xMaxPinInverted)digitalWriteFast(xMaxPin,HIGH);}
-  if(useRealMaxY){pinMode(yMaxPin,INPUT);if(!yMaxPinInverted)digitalWriteFast(yMaxPin,HIGH);}
-  if(useRealMaxZ){pinMode(zMaxPin,INPUT);if(!zMaxPinInverted)digitalWriteFast(zMaxPin,HIGH);}
+//  if(useRealMaxX){pinMode(xMaxPin,INPUT);if(!xMaxPinInverted)digitalWriteFast(xMaxPin,HIGH);}
+//  if(useRealMaxY){pinMode(yMaxPin,INPUT);if(!yMaxPinInverted)digitalWriteFast(yMaxPin,HIGH);}
+//  if(useRealMaxZ){pinMode(zMaxPin,INPUT);if(!zMaxPinInverted)digitalWriteFast(zMaxPin,HIGH);}
+/*
   if(useRealMaxA){pinMode(aMaxPin,INPUT);if(!aMaxPinInverted)digitalWriteFast(aMaxPin,HIGH);}
   if(useRealMaxB){pinMode(bMaxPin,INPUT);if(!bMaxPinInverted)digitalWriteFast(bMaxPin,HIGH);}
   if(useRealMaxC){pinMode(cMaxPin,INPUT);if(!cMaxPinInverted)digitalWriteFast(cMaxPin,HIGH);}
   if(useRealMaxU){pinMode(uMaxPin,INPUT);if(!uMaxPinInverted)digitalWriteFast(uMaxPin,HIGH);}
   if(useRealMaxV){pinMode(vMaxPin,INPUT);if(!vMaxPinInverted)digitalWriteFast(vMaxPin,HIGH);}
   if(useRealMaxW){pinMode(wMaxPin,INPUT);if(!wMaxPinInverted)digitalWriteFast(wMaxPin,HIGH);}
-
+*/
   // Setup Homing switches.
-  if(useRealHomeX){pinMode(xHomePin,INPUT);if(!xHomePinInverted)digitalWriteFast(xHomePin,HIGH);}
-  if(useRealHomeY){pinMode(yHomePin,INPUT);if(!yHomePinInverted)digitalWriteFast(yHomePin,HIGH);}
-  if(useRealHomeZ){pinMode(zHomePin,INPUT);if(!zHomePinInverted)digitalWriteFast(zHomePin,HIGH);}
-  if(useRealHomeA){pinMode(aHomePin,INPUT);if(!aHomePinInverted)digitalWriteFast(aHomePin,HIGH);}
+//  if(useRealHomeX){pinMode(xHomePin,INPUT);if(!xHomePinInverted)digitalWriteFast(xHomePin,HIGH);}
+//  if(useRealHomeY){pinMode(yHomePin,INPUT);if(!yHomePinInverted)digitalWriteFast(yHomePin,HIGH);}
+//  if(useRealHomeZ){pinMode(zHomePin,INPUT);if(!zHomePinInverted)digitalWriteFast(zHomePin,HIGH);}
+/*  if(useRealHomeA){pinMode(aHomePin,INPUT);if(!aHomePinInverted)digitalWriteFast(aHomePin,HIGH);}
   if(useRealHomeB){pinMode(bHomePin,INPUT);if(!bHomePinInverted)digitalWriteFast(bHomePin,HIGH);}
   if(useRealHomeC){pinMode(cHomePin,INPUT);if(!cHomePinInverted)digitalWriteFast(cHomePin,HIGH);}
   if(useRealHomeU){pinMode(uHomePin,INPUT);if(!uHomePinInverted)digitalWriteFast(uHomePin,HIGH);}
   if(useRealHomeV){pinMode(vHomePin,INPUT);if(!vHomePinInverted)digitalWriteFast(vHomePin,HIGH);}
   if(useRealHomeW){pinMode(wHomePin,INPUT);if(!wHomePinInverted)digitalWriteFast(wHomePin,HIGH);}
+*/
 
   // Enable stepper drivers.
+/*
   pinMode(xEnablePin,OUTPUT);digitalWrite(xEnablePin,LOW);
   pinMode(yEnablePin,OUTPUT);digitalWrite(yEnablePin,LOW);
   pinMode(zEnablePin,OUTPUT);digitalWrite(zEnablePin,LOW);
@@ -838,10 +880,11 @@ void setup()
   pinMode(uEnablePin,OUTPUT);digitalWrite(uEnablePin,LOW);
   pinMode(vEnablePin,OUTPUT);digitalWrite(vEnablePin,LOW);
   pinMode(wEnablePin,OUTPUT);digitalWrite(wEnablePin,LOW);
-
+*/
   // Setup step pins.
   pinMode(stepPin0,OUTPUT);
   pinMode(stepPin1,OUTPUT);
+/*
   pinMode(stepPin2,OUTPUT);
   pinMode(stepPin3,OUTPUT);
   pinMode(stepPin4,OUTPUT);
@@ -849,19 +892,21 @@ void setup()
   pinMode(stepPin6,OUTPUT);
   pinMode(stepPin7,OUTPUT);
   pinMode(stepPin8,OUTPUT);
-  
+*/  
   // Setup dir pins.
   pinMode(dirPin0,OUTPUT);
   pinMode(dirPin1,OUTPUT);
-  pinMode(dirPin2,OUTPUT);
+//  pinMode(dirPin2,OUTPUT);
+/*
   pinMode(dirPin3,OUTPUT);
   pinMode(dirPin4,OUTPUT);
   pinMode(dirPin5,OUTPUT);
   pinMode(dirPin6,OUTPUT);
   pinMode(dirPin7,OUTPUT);
   pinMode(dirPin8,OUTPUT);
-
+*/
   // Setup microStepping pins.
+/*
   pinMode(chanXms1,OUTPUT);pinMode(chanXms2,OUTPUT);pinMode(chanXms3,OUTPUT);
   pinMode(chanYms1,OUTPUT);pinMode(chanYms2,OUTPUT);pinMode(chanYms3,OUTPUT);
   pinMode(chanZms1,OUTPUT);pinMode(chanZms2,OUTPUT);pinMode(chanZms3,OUTPUT);
@@ -871,11 +916,11 @@ void setup()
   pinMode(chanUms1,OUTPUT);pinMode(chanUms2,OUTPUT);pinMode(chanUms3,OUTPUT);
   pinMode(chanVms1,OUTPUT);pinMode(chanVms2,OUTPUT);pinMode(chanVms3,OUTPUT);
   pinMode(chanWms1,OUTPUT);pinMode(chanWms2,OUTPUT);pinMode(chanWms3,OUTPUT);
-  
+*/  
   // Setup eStop, power, start, stop, pause, resume, program step, spindle, coolant, LED and probe pins.
   if(useEstopSwitch){pinMode(eStopPin,INPUT);if(!eStopPinInverted){digitalWriteFast(eStopPin,HIGH);}}
   if(usePowerSwitch){pinMode(powerPin,INPUT);if(!powerPinInverted){digitalWriteFast(powerPin,HIGH);}}
-  if(useProbe){pinMode(probePin,INPUT);if(!probePinInverted){digitalWriteFast(probePin,HIGH);}}
+//  if(useProbe){pinMode(probePin,INPUT);if(!probePinInverted){digitalWriteFast(probePin,HIGH);}}
   if(useStartSwitch){pinMode(startPin,INPUT);if(!startPinInverted){digitalWriteFast(startPin,HIGH);}}
   if(useStopSwitch){pinMode(stopPin,INPUT);if(!stopPinInverted){digitalWriteFast(stopPin,HIGH);}}
   if(usePauseSwitch){pinMode(pausePin,INPUT);if(!pausePinInverted){digitalWriteFast(pausePin,HIGH);}}
@@ -883,18 +928,20 @@ void setup()
   if(useStepSwitch){pinMode(stepPin,INPUT);if(!stepPinInverted){digitalWriteFast(stepPin,HIGH);}}
   if(powerLedPin > 0){pinMode(powerLedPin,OUTPUT);digitalWriteFast(powerLedPin,HIGH);}
   if(eStopLedPin>0){pinMode(eStopLedPin,OUTPUT);digitalWriteFast(eStopLedPin,LOW);}
+/*
   if(spindleEnablePin>0){pinMode(spindleEnablePin,OUTPUT);digitalWriteFast(spindleEnablePin,HIGH);}
   if(spindleDirection>0){pinMode(spindleDirection,OUTPUT);digitalWriteFast(spindleDirection,LOW);}
   if(spindleTach>0){pinMode(spindleTach,INPUT);digitalWriteFast(spindleTach,HIGH);}
   if(coolantMistPin>0){pinMode(coolantMistPin,OUTPUT);digitalWriteFast(coolantMistPin,LOW);}
   if(coolantFloodPin>0){pinMode(coolantFloodPin,OUTPUT);digitalWriteFast(coolantFloodPin,LOW);}
+*/
   if(powerSupplyPin>0){pinMode(powerSupplyPin,OUTPUT);digitalWriteFast(powerSupplyPin,psuState);}
 
   // Setup idle indicator led.
   pinMode(idleIndicator,OUTPUT);
 
   // Actually SET our microStepping mode. (If you must change this, re-adjust your stepsPerInch settings.)
-  stepMode(9,16);
+//  stepMode(9,16);
   
   // Setup serial link.
   Serial.begin(BAUD);
@@ -914,7 +961,7 @@ void loop()
 {
   if(useEstopSwitch==true){boolean eStopState=digitalReadFast(eStopPin);if(eStopPinInverted){eStopState=!eStopState;}if(eStopState != eStopStateOld || eStopStateOld){eStopStateOld=eStopState;Serial.print("e");Serial.println(eStopState);delay(500);}}
   if(usePowerSwitch==true){boolean powerState=digitalReadFast(powerPin);if(powerPinInverted){powerState=!powerState;}if(powerState != powerStateOld){powerStateOld=powerState;if(powerSwitchIsMomentary){Serial.println("pt");}else{Serial.print("p");Serial.println(powerState);}}}
-  if(useProbe==true){boolean probeState=digitalReadFast(probePin);if(probePinInverted){probeState=!probeState;}if(probeState != probeStateOld){probeStateOld=probeState;Serial.print("P");Serial.println(probeState);}}
+//  if(useProbe==true){boolean probeState=digitalReadFast(probePin);if(probePinInverted){probeState=!probeState;}if(probeState != probeStateOld){probeStateOld=probeState;Serial.print("P");Serial.println(probeState);}}
   if(useStartSwitch==true){boolean startState=digitalReadFast(startPin);if(startPinInverted){startState=!startState;}if(startState != startStateOld){startStateOld=startState;Serial.print("h");Serial.println(startState);}}
   if(useStopSwitch==true){boolean stopState=digitalReadFast(stopPin);if(stopPinInverted){stopState=!stopState;}if(stopState != stopStateOld){stopStateOld=stopState;Serial.print("h");Serial.println(stopState+2);}}
   if(usePauseSwitch==true){boolean pauseState=digitalReadFast(pausePin);if(pausePinInverted){pauseState=!pauseState;}if(pauseState != pauseStateOld){pauseStateOld=pauseState;Serial.print("h");Serial.println(pauseState+4);}}
@@ -932,20 +979,21 @@ void loop()
   if(sofar>0 && buffer[sofar-3]=='+') {
     if(sofar>0 && buffer[sofar-2]=='P') { /* Power LED & PSU   ON */ if(powerLedPin>0){digitalWriteFast(powerLedPin,HIGH);}if(powerSupplyPin>0){digitalWriteFast(powerSupplyPin,psuState);}}
     if(sofar>0 && buffer[sofar-2]=='E') { /* E-Stop Indicator  ON */ if(eStopLedPin>0){digitalWriteFast(eStopLedPin,HIGH);}}
-    if(sofar>0 && buffer[sofar-2]=='S') { /* Spindle power     ON */ spindleEnabled=true;}
-    if(sofar>0 && buffer[sofar-2]=='D') { /* Spindle direction CW */ if(spindleDirection>0){digitalWriteFast(spindleDirection,spindleState);}}
-    if(sofar>0 && buffer[sofar-2]=='M') { /* Coolant Mist      ON */ if(coolantMistPin>0){digitalWriteFast(coolantMistPin,HIGH);}}
-    if(sofar>0 && buffer[sofar-2]=='F') { /* Coolant Flood     ON */ if(coolantFloodPin>0){digitalWriteFast(coolantFloodPin,HIGH);}}
+//    if(sofar>0 && buffer[sofar-2]=='S') { /* Spindle power     ON */ spindleEnabled=true;}
+//    if(sofar>0 && buffer[sofar-2]=='D') { /* Spindle direction CW */ if(spindleDirection>0){digitalWriteFast(spindleDirection,spindleState);}}
+//    if(sofar>0 && buffer[sofar-2]=='M') { /* Coolant Mist      ON */ if(coolantMistPin>0){digitalWriteFast(coolantMistPin,HIGH);}}
+//    if(sofar>0 && buffer[sofar-2]=='F') { /* Coolant Flood     ON */ if(coolantFloodPin>0){digitalWriteFast(coolantFloodPin,HIGH);}}
+
   }
 
   // Received a "-" turn something off.
   if(sofar>0 && buffer[sofar-3]=='-') {
     if(sofar>0 && buffer[sofar-2]=='P') { /* Power LED & PSU   OFF */ if(powerLedPin>0){digitalWriteFast(powerLedPin,LOW);}if(powerSupplyPin>0){digitalWriteFast(powerSupplyPin,!psuState);}}
     if(sofar>0 && buffer[sofar-2]=='E') { /* E-Stop Indicator  OFF */ if(eStopLedPin>0){digitalWriteFast(eStopLedPin,LOW);}}
-    if(sofar>0 && buffer[sofar-2]=='S') { /* Spindle power     OFF */ spindleEnabled=false;}
-    if(sofar>0 && buffer[sofar-2]=='D') { /* Spindle direction CCW */ if(spindleDirection>0){digitalWriteFast(spindleDirection,!spindleState);}}
-    if(sofar>0 && buffer[sofar-2]=='M') { /* Coolant Mist      OFF */ if(coolantMistPin>0){digitalWriteFast(coolantMistPin,LOW);}}
-    if(sofar>0 && buffer[sofar-2]=='F') { /* Coolant Flood     OFF */ if(coolantFloodPin>0){digitalWriteFast(coolantFloodPin,LOW);}}
+//    if(sofar>0 && buffer[sofar-2]=='S') { /* Spindle power     OFF */ spindleEnabled=false;}
+//    if(sofar>0 && buffer[sofar-2]=='D') { /* Spindle direction CCW */ if(spindleDirection>0){digitalWriteFast(spindleDirection,!spindleState);}}
+//    if(sofar>0 && buffer[sofar-2]=='M') { /* Coolant Mist      OFF */ if(coolantMistPin>0){digitalWriteFast(coolantMistPin,LOW);}}
+//    if(sofar>0 && buffer[sofar-2]=='F') { /* Coolant Flood     OFF */ if(coolantFloodPin>0){digitalWriteFast(coolantFloodPin,LOW);}}
   }
  
   // Received a "?" about something give an answer.
@@ -965,7 +1013,9 @@ void loop()
     // reset the buffer
     sofar=0;
   }
+/*
   updateSpindleRevs();
   if(!globalBusy){boolean spindleAtSpeedState=spindleAtSpeed();if(spindleAtSpeedState != spindleAtSpeedStateOld){spindleAtSpeedStateOld=spindleAtSpeedState;Serial.print("S");Serial.println(spindleAtSpeedState);}}
+*/
   stepLight(); // call every loop cycle to update stepper motion.
 }
