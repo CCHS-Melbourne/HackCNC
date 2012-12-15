@@ -46,6 +46,10 @@ c.newpin("pause",hal.HAL_BIT,hal.HAL_IN)
 c.newpin("resume",hal.HAL_BIT,hal.HAL_IN)
 c.newpin("step",hal.HAL_BIT,hal.HAL_IN)
 c.newpin("machine-state",hal.HAL_BIT,hal.HAL_IN)
+
+# homing pins
+c.newpin("is0homed",hal.HAL_BIT,hal.HAL_IN)
+
 c.newpin("axis0-cmd",hal.HAL_FLOAT,hal.HAL_IN)
 c.newpin("axis1-cmd",hal.HAL_FLOAT,hal.HAL_IN)
 c.newpin("axis2-cmd",hal.HAL_FLOAT,hal.HAL_IN)
@@ -89,6 +93,9 @@ c.ready()
 #send a message to the Arduino when it changes
 machineState = c['machine-state']
 eStopState = c['eStop']
+
+is0homed = c['is0homed']
+
 axis0cmd = c['axis0-cmd']
 axis1cmd = c['axis1-cmd']
 axis2cmd = c['axis2-cmd']
@@ -246,7 +253,28 @@ try:
         ser.write("-P;")
       #update the machine state variable
       machineState = c['machine-state']
-    #Check to see if we have a message waiting from the Arduino
+
+    #Check the machine State
+    if(machineState != c['machine-state']):
+      if(c['machine-state'] == 1):
+        #The machine is on, so turn on the power LED
+        ser.write("+P;")
+      else:
+        #opposite of above
+        ser.write("-P;")
+      #update the machine state variable
+      machineState = c['machine-state']
+    
+    #check if the machine is homed.
+    if(is0homed != c['is0homed']):
+	if(c['is0homed'] == 1):
+		ser.write("+0;")
+	else:
+		ser.write("-0;")
+	is0homed = c['is0homed']
+
+
+      #Check to see if we have a message waiting from the Arduino
     while ser.inWaiting():
       #This should be set to the length of whatever fixed-length message
       #you're sending from the arduino. It does not have to be the same length

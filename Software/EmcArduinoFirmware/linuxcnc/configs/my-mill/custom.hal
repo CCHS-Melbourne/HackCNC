@@ -67,6 +67,8 @@ net ProgramStep arduino.step => halui.program.step
 #unlinkp iocontrol.0.coolant-mist
 #net mist arduino.coolantMist <= iocontrol.0.coolant-mist
 
+unlinkp halui.joint.0.is-homed
+net is-0-homed arduino.is0homed <= halui.joint.0.is-homed
 
 ###############################################################################
 ##### Now on to the axies, if you don't have a given axis comment out the #####
