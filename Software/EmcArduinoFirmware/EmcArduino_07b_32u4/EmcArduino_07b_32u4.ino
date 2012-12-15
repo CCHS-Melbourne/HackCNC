@@ -387,6 +387,7 @@ boolean dirState8=true;
 /////////////////////////////END OF USER SETTINGS///////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
+// This buffer's a single command.
 char buffer[128];
 int sofar;
  
@@ -553,6 +554,7 @@ float fbwOld=0;
 */
 
 //void jog(float x, float y, float z, float a, float b, float c, float u, float v, float w)
+
 void jog(float x, float y, float z)
 {
   pos_x=x;
@@ -715,7 +717,21 @@ void stepLight() // Set by jog() && Used by loop()
     stepState=!stepState;
     int busy=0;
 
-    if(stepper0Pos != stepper0Goto){busy++;if(stepper0Pos > stepper0Goto){digitalWriteFast(dirPin0,!dirState0);digitalWriteFast(stepPin0,stepState);stepper0Pos--;}else{digitalWriteFast(dirPin0, dirState0);digitalWriteFast(stepPin0,stepState);stepper0Pos++;}}
+    // so, the stepper position hasn't reached it's destination.
+    // 
+    if(stepper0Pos != stepper0Goto){
+      busy++;
+      if(stepper0Pos > stepper0Goto){
+        digitalWriteFast(dirPin0,!dirState0);
+        digitalWriteFast(stepPin0,stepState);
+        stepper0Pos--;
+      }
+      else{
+        digitalWriteFast(dirPin0, dirState0);
+        digitalWriteFast(stepPin0,stepState);
+        stepper0Pos++;
+      }
+    }
     if(stepper1Pos != stepper1Goto){busy++;if(stepper1Pos > stepper1Goto){digitalWriteFast(dirPin1,!dirState1);digitalWriteFast(stepPin1,stepState);stepper1Pos--;}else{digitalWriteFast(dirPin1, dirState1);digitalWriteFast(stepPin1,stepState);stepper1Pos++;}}
 //    if(stepper2Pos != stepper2Goto){busy++;if(stepper2Pos > stepper2Goto){digitalWriteFast(dirPin2,!dirState2);digitalWriteFast(stepPin2,stepState);stepper2Pos--;}else{digitalWriteFast(dirPin2, dirState2);digitalWriteFast(stepPin2,stepState);stepper2Pos++;}}
 /*    if(stepper3Pos != stepper3Goto){busy++;if(stepper3Pos > stepper3Goto){digitalWriteFast(dirPin3,!dirState3);digitalWriteFast(stepPin3,stepState);stepper3Pos--;}else{digitalWriteFast(dirPin3, dirState3);digitalWriteFast(stepPin3,stepState);stepper3Pos++;}}
@@ -724,9 +740,37 @@ void stepLight() // Set by jog() && Used by loop()
     if(stepper6Pos != stepper6Goto){busy++;if(stepper6Pos > stepper6Goto){digitalWriteFast(dirPin6,!dirState6);digitalWriteFast(stepPin6,stepState);stepper6Pos--;}else{digitalWriteFast(dirPin6, dirState6);digitalWriteFast(stepPin6,stepState);stepper6Pos++;}}
     if(stepper7Pos != stepper7Goto){busy++;if(stepper7Pos > stepper7Goto){digitalWriteFast(dirPin7,!dirState7);digitalWriteFast(stepPin7,stepState);stepper7Pos--;}else{digitalWriteFast(dirPin7, dirState7);digitalWriteFast(stepPin7,stepState);stepper7Pos++;}}
     if(stepper8Pos != stepper8Goto){busy++;if(stepper8Pos > stepper8Goto){digitalWriteFast(dirPin8,!dirState8);digitalWriteFast(stepPin8,stepState);stepper8Pos--;}else{digitalWriteFast(dirPin8, dirState8);digitalWriteFast(stepPin8,stepState);stepper8Pos++;}}
-*/    
-    if(busy){digitalWriteFast(idleIndicator,LOW);if(globalBusy<255){globalBusy++;}}else{digitalWriteFast(idleIndicator,HIGH);if(globalBusy>0){globalBusy--;}
-      if(giveFeedBackX){fbx=stepper0Pos/4/(stepsPerInchX*0.5);if(!busy){if(fbx!=fbxOld){fbxOld=fbx;Serial.print("fx");Serial.println(fbx,6);}}}
+*/
+
+    // we have a busy value, so we're still moving.
+    if(busy){
+      digitalWriteFast(idleIndicator,LOW);
+      // increment to stay we're still busy.
+      if(globalBusy<255){
+        globalBusy++;
+      }
+    }
+    else{
+      // not busy, time to work on some 
+      digitalWriteFast(idleIndicator,HIGH);
+      if(globalBusy>0){
+        globalBusy--;
+      }
+      
+      // this transmits we're not ready to finish.
+      // but isn't used upstream in the HAL
+      if(giveFeedBackX){
+        fbx=stepper0Pos/4/(stepsPerInchX*0.5);
+        
+        // We never get to this!
+        if(!busy){
+          if(fbx!=fbxOld){
+            fbxOld=fbx;
+            Serial.print("fx");
+            Serial.println(fbx,6);
+          }
+        }
+      }
       if(giveFeedBackY){fby=stepper1Pos/4/(stepsPerInchY*0.5);if(!busy){if(fby!=fbyOld){fbyOld=fby;Serial.print("fy");Serial.println(fby,6);}}}
       if(giveFeedBackZ){fbz=stepper2Pos/4/(stepsPerInchZ*0.5);if(!busy){if(fbz!=fbzOld){fbzOld=fbz;Serial.print("fz");Serial.println(fbz,6);}}}
 /*      if(giveFeedBackA){fba=stepper3Pos/4/(stepsPerInchA*0.5);if(!busy){if(fba!=fbaOld){fbaOld=fba;Serial.print("fa");Serial.println(fba,6);}}}
@@ -1074,9 +1118,12 @@ void loop()
     sofar=0;
   }
   
+  //Serial.println(powerState);
+  
   // if we hit a semi-colon, assume end of instruction.
   // Do NOT EXECUTE instructions if E-STOP or Power is off!
-  if(sofar>0 && buffer[sofar-1]==';' && powerState && eStopState) {
+  // eStopState is not implemented yet.   awesome :(
+  if(powerState && sofar>0 && buffer[sofar-1]==';') {
  
     buffer[sofar]=0;
     
