@@ -40,6 +40,8 @@ Note concerning switches: Be smart!
 
 // You'll need this library. Get the interrupt safe version.
 #include <digitalWriteFast.h> // http://code.google.com/p/digitalwritefast/
+#include <LiquidCrystal_SR_LCD3.h>
+
 
 
 #include <Servo.h> 
@@ -50,6 +52,12 @@ Note concerning switches: Be smart!
 //servoUpZ is where your pen is disengaged - let up.
 #define servoUpZ 90
 
+// LCD Stuff
+const int PIN_LCD_STROBE         =  2;  // Out: LCD IC4094 shift-register strobe
+const int PIN_LCD_DATA           =  3;  // Out: LCD IC4094 shift-register data
+const int PIN_LCD_CLOCK          =  4;  // Out: LCD IC4094 shift-register clock
+LiquidCrystal_SR_LCD3 lcd(PIN_LCD_DATA, PIN_LCD_CLOCK, PIN_LCD_STROBE);
+
 Servo myservo;
 byte pos;
 
@@ -58,7 +66,7 @@ byte pos;
 
 // These will be used in the near future.
 #define VERSION "00072"      // 5 caracters
-#define ROLE    "ALL-IN-ONE" // 10 characters
+#define ROLE    "hackCNC" // 10 characters
 
 
 //Pitch = mm/turn = 1.25 mm/turn
@@ -233,34 +241,34 @@ byte pos;
 #define vMaxPin -1
 #define wMaxPin -1
 */
-#define powerSwitchIsMomentary true // Set to true if your using a momentary switch.
-#define powerPin    -1 // Power switch. Optional
-#define powerLedPin -1 // Power indicator. Optional
+//#define powerSwitchIsMomentary true // Set to true if your using a momentary switch.
+//#define powerPin    -1 // Power switch. Optional
+//#define powerLedPin -1 // Power indicator. Optional
 
-#define eStopPin         -1 // E-Stop switch. You really, REALLY should have this one.
-#define eStopLedPin      -1 // E-Stop indicator. Optional
+//#define eStopPin         -1 // E-Stop switch. You really, REALLY should have this one.
+//#define eStopLedPin      -1 // E-Stop indicator. Optional
 
-#define probePin  -1 // CNC Touch probe input.     Optional
-#define startPin  -1 // CNC Program start switch.  Optional
-#define stopPin   -1 // CNC Stop program switch.   Optional
-#define pausePin  -1 // CNC Pause program switch.  Optional
-#define resumePin -1 // CNC Resume program switch. Optional
-#define stepPin   -1 // CNC Program step switch.   Optional
+//#define probePin  -1 // CNC Touch probe input.     Optional
+//#define startPin  -1 // CNC Program start switch.  Optional
+//#define stopPin   -1 // CNC Stop program switch.   Optional
+//#define pausePin  -1 // CNC Pause program switch.  Optional
+//#define resumePin -1 // CNC Resume program switch. Optional
+//#define stepPin   -1 // CNC Program step switch.   Optional
 
 // Spindle pin config
-#define spindleEnablePin         -1 // Optional
-#define spindleEnableInverted    false // Set to true if you need +5v to activate.
-#define spindleDirection         -1 // Optional
-#define spindleDirectionInverted false // Set to true if spindle runs in reverse.
+//#define spindleEnablePin         -1 // Optional
+//#define spindleEnableInverted    false // Set to true if you need +5v to activate.
+//#define spindleDirection         -1 // Optional
+//#define spindleDirectionInverted false // Set to true if spindle runs in reverse.
 
-#define spindleTach      -1 // Must be an interrupt pin. Optional.
+//#define spindleTach      -1 // Must be an interrupt pin. Optional.
                             // UNO can use pin 2 or 3.
                             // Mega2560 can use 2,3,18,19,20 or 21.
 
-#define coolantMistPin   -1 // Controls coolant mist pump.   Optional
-#define coolantFloodPin  -1 // Controls coolant flood pump.  Optional
-#define powerSupplyPin   -1 // Controls power supply ON/OFF. Optional
-#define powerSupplyInverted true // Set to "true" for +5v = ON
+//#define coolantMistPin   -1 // Controls coolant mist pump.   Optional
+//#define coolantFloodPin  -1 // Controls coolant flood pump.  Optional
+//#define powerSupplyPin   -1 // Controls power supply ON/OFF. Optional
+//#define powerSupplyInverted true // Set to "true" for +5v = ON
 
 // Signal inversion for real switch users. (false = ground trigger signal, true = +5vdc trigger signal.)
 // Note: Inverted switches will need pull-down resistors (less than 10kOhm) to lightly ground the signal wires.
@@ -493,6 +501,9 @@ boolean uMaxStateOld=false;
 boolean vMaxStateOld=false;
 boolean wMaxStateOld=false;
 */
+
+// no support for these at the moment
+/*
 boolean eStopStateOld=false;
 boolean powerStateOld=false;
 //boolean probeStateOld=false;
@@ -501,6 +512,12 @@ boolean stopStateOld=false;
 boolean pauseStateOld=false;
 boolean resumeStateOld=false;
 boolean stepStateOld=false;
+*/
+
+// Soft Limit and Power
+boolean eStopState=false;
+boolean powerState=false;
+
 int globalBusy=0;
 
 long divisor=1000000; // input divisor. Our HAL script wont send the six decimal place floats that EMC cranks out.
@@ -508,7 +525,7 @@ long divisor=1000000; // input divisor. Our HAL script wont send the six decimal
                       // So here we have to put the decimal back to get the real numbers.
                       // Used in: processCommand()
 
-boolean psuState=powerSupplyInverted;
+//boolean psuState=powerSupplyInverted;
 //boolean spindleState=spindleDirectionInverted;
 
 float fbx=1;
@@ -830,7 +847,12 @@ void setup()
   myservo.attach(12); //Pin 26 - PD6 or D12
   //Go home.
   move_servo(1);
-
+  
+  lcd.begin(20, 4);               // initialize the lcd 
+  lcd.home ();                   // go home
+  lcd.setCursor (0, 0);
+  lcd.print(F("hackCNC             "));
+ 
   // If using a spindle tachometer, setup an interrupt for it.
 //  if(spindleTach>0){int result=determinInterrupt(spindleTach);attachInterrupt(result,countSpindleRevs,FALLING);}
   
@@ -905,6 +927,7 @@ void setup()
   pinMode(dirPin7,OUTPUT);
   pinMode(dirPin8,OUTPUT);
 */
+
   // Setup microStepping pins.
 /*
   pinMode(chanXms1,OUTPUT);pinMode(chanXms2,OUTPUT);pinMode(chanXms3,OUTPUT);
@@ -918,16 +941,16 @@ void setup()
   pinMode(chanWms1,OUTPUT);pinMode(chanWms2,OUTPUT);pinMode(chanWms3,OUTPUT);
 */  
   // Setup eStop, power, start, stop, pause, resume, program step, spindle, coolant, LED and probe pins.
-  if(useEstopSwitch){pinMode(eStopPin,INPUT);if(!eStopPinInverted){digitalWriteFast(eStopPin,HIGH);}}
-  if(usePowerSwitch){pinMode(powerPin,INPUT);if(!powerPinInverted){digitalWriteFast(powerPin,HIGH);}}
+  //if(useEstopSwitch){pinMode(eStopPin,INPUT);if(!eStopPinInverted){digitalWriteFast(eStopPin,HIGH);}}
+  //if(usePowerSwitch){pinMode(powerPin,INPUT);if(!powerPinInverted){digitalWriteFast(powerPin,HIGH);}}
 //  if(useProbe){pinMode(probePin,INPUT);if(!probePinInverted){digitalWriteFast(probePin,HIGH);}}
-  if(useStartSwitch){pinMode(startPin,INPUT);if(!startPinInverted){digitalWriteFast(startPin,HIGH);}}
-  if(useStopSwitch){pinMode(stopPin,INPUT);if(!stopPinInverted){digitalWriteFast(stopPin,HIGH);}}
-  if(usePauseSwitch){pinMode(pausePin,INPUT);if(!pausePinInverted){digitalWriteFast(pausePin,HIGH);}}
-  if(useResumeSwitch){pinMode(resumePin,INPUT);if(!resumePinInverted){digitalWriteFast(resumePin,HIGH);}}
-  if(useStepSwitch){pinMode(stepPin,INPUT);if(!stepPinInverted){digitalWriteFast(stepPin,HIGH);}}
-  if(powerLedPin > 0){pinMode(powerLedPin,OUTPUT);digitalWriteFast(powerLedPin,HIGH);}
-  if(eStopLedPin>0){pinMode(eStopLedPin,OUTPUT);digitalWriteFast(eStopLedPin,LOW);}
+  //if(useStartSwitch){pinMode(startPin,INPUT);if(!startPinInverted){digitalWriteFast(startPin,HIGH);}}
+  //if(useStopSwitch){pinMode(stopPin,INPUT);if(!stopPinInverted){digitalWriteFast(stopPin,HIGH);}}
+  //if(usePauseSwitch){pinMode(pausePin,INPUT);if(!pausePinInverted){digitalWriteFast(pausePin,HIGH);}}
+  //if(useResumeSwitch){pinMode(resumePin,INPUT);if(!resumePinInverted){digitalWriteFast(resumePin,HIGH);}}
+  //if(useStepSwitch){pinMode(stepPin,INPUT);if(!stepPinInverted){digitalWriteFast(stepPin,HIGH);}}
+  //if(powerLedPin > 0){pinMode(powerLedPin,OUTPUT);digitalWriteFast(powerLedPin,HIGH);}
+  //if(eStopLedPin>0){pinMode(eStopLedPin,OUTPUT);digitalWriteFast(eStopLedPin,LOW);}
 /*
   if(spindleEnablePin>0){pinMode(spindleEnablePin,OUTPUT);digitalWriteFast(spindleEnablePin,HIGH);}
   if(spindleDirection>0){pinMode(spindleDirection,OUTPUT);digitalWriteFast(spindleDirection,LOW);}
@@ -935,13 +958,20 @@ void setup()
   if(coolantMistPin>0){pinMode(coolantMistPin,OUTPUT);digitalWriteFast(coolantMistPin,LOW);}
   if(coolantFloodPin>0){pinMode(coolantFloodPin,OUTPUT);digitalWriteFast(coolantFloodPin,LOW);}
 */
-  if(powerSupplyPin>0){pinMode(powerSupplyPin,OUTPUT);digitalWriteFast(powerSupplyPin,psuState);}
+  //if(powerSupplyPin>0){pinMode(powerSupplyPin,OUTPUT);digitalWriteFast(powerSupplyPin,psuState);}
 
   // Setup idle indicator led.
   pinMode(idleIndicator,OUTPUT);
 
   // Actually SET our microStepping mode. (If you must change this, re-adjust your stepsPerInch settings.)
 //  stepMode(9,16);
+  
+  lcd.setCursor (0, 1);
+  lcd.print(F("Startup Complete.   "));
+  lcd.setCursor (0, 2);
+  lcd.print(F("Waiting For LinuxCNC"));
+  lcd.setCursor (0, 3);
+  lcd.print(F("                    ")); // 20 spaces! must be a better way
   
   // Setup serial link.
   Serial.begin(BAUD);
@@ -959,53 +989,103 @@ boolean spindleAtSpeedStateOld;
 
 void loop()
 {
-  if(useEstopSwitch==true){boolean eStopState=digitalReadFast(eStopPin);if(eStopPinInverted){eStopState=!eStopState;}if(eStopState != eStopStateOld || eStopStateOld){eStopStateOld=eStopState;Serial.print("e");Serial.println(eStopState);delay(500);}}
-  if(usePowerSwitch==true){boolean powerState=digitalReadFast(powerPin);if(powerPinInverted){powerState=!powerState;}if(powerState != powerStateOld){powerStateOld=powerState;if(powerSwitchIsMomentary){Serial.println("pt");}else{Serial.print("p");Serial.println(powerState);}}}
-//  if(useProbe==true){boolean probeState=digitalReadFast(probePin);if(probePinInverted){probeState=!probeState;}if(probeState != probeStateOld){probeStateOld=probeState;Serial.print("P");Serial.println(probeState);}}
-  if(useStartSwitch==true){boolean startState=digitalReadFast(startPin);if(startPinInverted){startState=!startState;}if(startState != startStateOld){startStateOld=startState;Serial.print("h");Serial.println(startState);}}
-  if(useStopSwitch==true){boolean stopState=digitalReadFast(stopPin);if(stopPinInverted){stopState=!stopState;}if(stopState != stopStateOld){stopStateOld=stopState;Serial.print("h");Serial.println(stopState+2);}}
-  if(usePauseSwitch==true){boolean pauseState=digitalReadFast(pausePin);if(pausePinInverted){pauseState=!pauseState;}if(pauseState != pauseStateOld){pauseStateOld=pauseState;Serial.print("h");Serial.println(pauseState+4);}}
-  if(useResumeSwitch==true){boolean resumeState=digitalReadFast(resumePin);if(resumePinInverted){resumeState=!resumeState;}if(resumeState != resumeStateOld){resumeStateOld=resumeState;Serial.print("h");Serial.println(resumeState+6);}}
-  if(useStepSwitch==true){boolean stepState=digitalReadFast(stepPin);if(stepPinInverted){stepState=!stepState;}if(stepState != stepStateOld){stepStateOld=stepState;Serial.print("h");Serial.println(stepState+8);}}
+  // These are all for physical switches, which we don't have
+  //if(useEstopSwitch==true){boolean eStopState=digitalReadFast(eStopPin);if(eStopPinInverted){eStopState=!eStopState;}if(eStopState != eStopStateOld || eStopStateOld){eStopStateOld=eStopState;Serial.print("e");Serial.println(eStopState);delay(500);}}
+  //if(usePowerSwitch==true){boolean powerState=digitalReadFast(powerPin);if(powerPinInverted){powerState=!powerState;}if(powerState != powerStateOld){powerStateOld=powerState;if(powerSwitchIsMomentary){Serial.println("pt");}else{Serial.print("p");Serial.println(powerState);}}}
+  //if(useProbe==true){boolean probeState=digitalReadFast(probePin);if(probePinInverted){probeState=!probeState;}if(probeState != probeStateOld){probeStateOld=probeState;Serial.print("P");Serial.println(probeState);}}
+  //if(useStartSwitch==true){boolean startState=digitalReadFast(startPin);if(startPinInverted){startState=!startState;}if(startState != startStateOld){startStateOld=startState;Serial.print("h");Serial.println(startState);}}
+  //if(useStopSwitch==true){boolean stopState=digitalReadFast(stopPin);if(stopPinInverted){stopState=!stopState;}if(stopState != stopStateOld){stopStateOld=stopState;Serial.print("h");Serial.println(stopState+2);}}
+  //if(usePauseSwitch==true){boolean pauseState=digitalReadFast(pausePin);if(pausePinInverted){pauseState=!pauseState;}if(pauseState != pauseStateOld){pauseStateOld=pauseState;Serial.print("h");Serial.println(pauseState+4);}}
+  //if(useResumeSwitch==true){boolean resumeState=digitalReadFast(resumePin);if(resumePinInverted){resumeState=!resumeState;}if(resumeState != resumeStateOld){resumeStateOld=resumeState;Serial.print("h");Serial.println(resumeState+6);}}
+  //if(useStepSwitch==true){boolean stepState=digitalReadFast(stepPin);if(stepPinInverted){stepState=!stepState;}if(stepState != stepStateOld){stepStateOld=stepState;Serial.print("h");Serial.println(stepState+8);}}
 
 
   // listen for serial commands
   while(Serial.available() > 0) {
     buffer[sofar++]=Serial.read();
     if(buffer[sofar-1]==';') break;  // in case there are multiple instructions
-    
   }
+ 
   // Received a "+" turn something on.
   if(sofar>0 && buffer[sofar-3]=='+') {
-    if(sofar>0 && buffer[sofar-2]=='P') { /* Power LED & PSU   ON */ if(powerLedPin>0){digitalWriteFast(powerLedPin,HIGH);}if(powerSupplyPin>0){digitalWriteFast(powerSupplyPin,psuState);}}
-    if(sofar>0 && buffer[sofar-2]=='E') { /* E-Stop Indicator  ON */ if(eStopLedPin>0){digitalWriteFast(eStopLedPin,HIGH);}}
+    //if(sofar>0 && buffer[sofar-2]=='P') { /* Power LED & PSU   ON */ if(powerLedPin>0){digitalWriteFast(powerLedPin,HIGH);}if(powerSupplyPin>0){digitalWriteFast(powerSupplyPin,psuState);}}
+    if(sofar>0 && buffer[sofar-2]=='P') { powerState=true; };
+    //if(sofar>0 && buffer[sofar-2]=='E') { /* E-Stop Indicator  ON */ if(eStopLedPin>0){digitalWriteFast(eStopLedPin,HIGH);}}
+    if(sofar>0 && buffer[sofar-2]=='E') { eStopState=true; };
 //    if(sofar>0 && buffer[sofar-2]=='S') { /* Spindle power     ON */ spindleEnabled=true;}
 //    if(sofar>0 && buffer[sofar-2]=='D') { /* Spindle direction CW */ if(spindleDirection>0){digitalWriteFast(spindleDirection,spindleState);}}
 //    if(sofar>0 && buffer[sofar-2]=='M') { /* Coolant Mist      ON */ if(coolantMistPin>0){digitalWriteFast(coolantMistPin,HIGH);}}
 //    if(sofar>0 && buffer[sofar-2]=='F') { /* Coolant Flood     ON */ if(coolantFloodPin>0){digitalWriteFast(coolantFloodPin,HIGH);}}
 
+      lcd.setCursor (0, 1);
+      lcd.print(F("LinuxCNC Connected. "));
+      lcd.setCursor (0, 2);
+      lcd.print(F("Power Initialised.  "));
+      lcd.setCursor (0, 3);
+      lcd.print(F("                    ")); // 20 spaces! must be a better way
+      
+      // reset the buffer
+      sofar=0;  
   }
 
   // Received a "-" turn something off.
+  // we have no physical pins, just software
+  // so this is mostly not needed.
   if(sofar>0 && buffer[sofar-3]=='-') {
-    if(sofar>0 && buffer[sofar-2]=='P') { /* Power LED & PSU   OFF */ if(powerLedPin>0){digitalWriteFast(powerLedPin,LOW);}if(powerSupplyPin>0){digitalWriteFast(powerSupplyPin,!psuState);}}
-    if(sofar>0 && buffer[sofar-2]=='E') { /* E-Stop Indicator  OFF */ if(eStopLedPin>0){digitalWriteFast(eStopLedPin,LOW);}}
+    //if(sofar>0 && buffer[sofar-2]=='P') { /* Power LED & PSU   OFF */ if(powerLedPin>0){ digitalWriteFast(powerLedPin,LOW);}if(powerSupplyPin>0){digitalWriteFast(powerSupplyPin,!psuState);}}
+    if(sofar>0 && buffer[sofar-2]=='P') { powerState=false; };
+    //if(sofar>0 && buffer[sofar-2]=='E') { /* E-Stop Indicator  OFF */ if(eStopLedPin>0){digitalWriteFast(eStopLedPin,LOW);}}
+    if(sofar>0 && buffer[sofar-2]=='E') { eStopState=false; };
 //    if(sofar>0 && buffer[sofar-2]=='S') { /* Spindle power     OFF */ spindleEnabled=false;}
 //    if(sofar>0 && buffer[sofar-2]=='D') { /* Spindle direction CCW */ if(spindleDirection>0){digitalWriteFast(spindleDirection,!spindleState);}}
 //    if(sofar>0 && buffer[sofar-2]=='M') { /* Coolant Mist      OFF */ if(coolantMistPin>0){digitalWriteFast(coolantMistPin,LOW);}}
 //    if(sofar>0 && buffer[sofar-2]=='F') { /* Coolant Flood     OFF */ if(coolantFloodPin>0){digitalWriteFast(coolantFloodPin,LOW);}}
+
+    // clear the LCD
+    lcd.setCursor (0, 1);
+    lcd.print(F("Disconnected.       "));
+    lcd.setCursor (0, 2);
+    lcd.print(F("Waiting For LinuxCNC"));
+    lcd.setCursor (0, 3);
+    lcd.print(F("                    ")); // 20 spaces! must be a better way
+    
+    // reset the buffer.
+    sofar=0;
   }
  
   // Received a "?" about something give an answer.
   if(sofar>0 && buffer[sofar-3]=='?') {
-    if(sofar>0 && buffer[sofar-2]=='V') { /* Report version */ Serial.println(VERSION);}
-    if(sofar>0 && buffer[sofar-2]=='R') { /* Report role    */ Serial.println(ROLE);}
+    if(sofar>0 && buffer[sofar-2]=='V') { 
+      /* Report version */
+      Serial.println(VERSION);
+      lcd.setCursor (0, 3);
+      lcd.print(F(VERSION));
+      lcd.print(F("               ")); // match the Version length.  Cheating
+    }
+    if(sofar>0 && buffer[sofar-2]=='R') {
+     /* Report role    */
+     Serial.println(ROLE);
+      lcd.setCursor (0, 3);
+      lcd.print(F(ROLE));
+      lcd.print(F("             ")); // match the Role length.  Cheating
+    }
+    
+    // reset the buffer.
+    sofar=0;
   }
   
   // if we hit a semi-colon, assume end of instruction.
-  if(sofar>0 && buffer[sofar-1]==';') {
+  // Do NOT EXECUTE instructions if E-STOP or Power is off!
+  if(sofar>0 && buffer[sofar-1]==';' && powerState && eStopState) {
  
     buffer[sofar]=0;
+    
+    // output the command
+    Serial.println(buffer);
+    lcd.setCursor (0, 2); // could have sworn this should be 0,1
+    lcd.print(F("                                                            ")); // three lines of spaces
+    lcd.setCursor (0, 1);
+    lcd.print(buffer);
  
     // do something with the command
     processCommand();
