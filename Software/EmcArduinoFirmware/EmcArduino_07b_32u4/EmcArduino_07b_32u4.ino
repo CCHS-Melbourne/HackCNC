@@ -519,6 +519,11 @@ boolean stepStateOld=false;
 boolean eStopState=false;
 boolean powerState=false;
 
+// Axis homed
+boolean xHomed=false;
+boolean yHomed=false;
+boolean zHomed=false;
+
 int globalBusy=0;
 
 long divisor=1000000; // input divisor. Our HAL script wont send the six decimal place floats that EMC cranks out.
@@ -1062,13 +1067,24 @@ void loop()
   if(sofar>0 && buffer[sofar-3]=='+') {
 
     //if(sofar>0 && buffer[sofar-2]=='P') { /* Power LED & PSU   ON */ if(powerLedPin>0){digitalWriteFast(powerLedPin,HIGH);}if(powerSupplyPin>0){digitalWriteFast(powerSupplyPin,psuState);}}
-    if(sofar>0 && buffer[sofar-2]=='P') { powerState=true; lcd.setCursor (0, 1); lcd.print(F("Power Initialised.  "));lcd.setCursor (15, 0); lcd.print(F("P"));};
+    if(sofar>0 && buffer[sofar-2]=='E') { eStopState=true; lcd.setCursor (0, 1); lcd.print(F("eStop Open.         "));lcd.setCursor (15, 0); lcd.print(F("E"));};
+    if(sofar>0 && buffer[sofar-2]=='P') { powerState=true; lcd.setCursor (0, 1); lcd.print(F("Power Initialised.  "));lcd.setCursor (16, 0); lcd.print(F("P"));};
     //if(sofar>0 && buffer[sofar-2]=='E') { /* E-Stop Indicator  ON */ if(eStopLedPin>0){digitalWriteFast(eStopLedPin,HIGH);}}
-    if(sofar>0 && buffer[sofar-2]=='E') { eStopState=true; lcd.setCursor (0, 1); lcd.print(F("eStop Open.         "));lcd.setCursor (16, 0); lcd.print(F("E"));};
+    
 //    if(sofar>0 && buffer[sofar-2]=='S') { /* Spindle power     ON */ spindleEnabled=true;}
 //    if(sofar>0 && buffer[sofar-2]=='D') { /* Spindle direction CW */ if(spindleDirection>0){digitalWriteFast(spindleDirection,spindleState);}}
 //    if(sofar>0 && buffer[sofar-2]=='M') { /* Coolant Mist      ON */ if(coolantMistPin>0){digitalWriteFast(coolantMistPin,HIGH);}}
 //    if(sofar>0 && buffer[sofar-2]=='F') { /* Coolant Flood     ON */ if(coolantFloodPin>0){digitalWriteFast(coolantFloodPin,HIGH);}}
+
+    // Running code state
+    if(sofar>0 && buffer[sofar-2]=='r') { xHomed=true; lcd.setCursor (0, 1); lcd.print(F("Running gCode       Touch to PAUSE      "));lcd.setCursor (12, 0); lcd.print(F("R"));};
+    if(sofar>0 && buffer[sofar-2]=='s') { xHomed=true; lcd.setCursor (0, 1); lcd.print(F("Run Stopped!                            "));lcd.setCursor (12, 0); lcd.print(F("S"));};
+    if(sofar>0 && buffer[sofar-2]=='p') { xHomed=true; lcd.setCursor (0, 1); lcd.print(F("Run Paused!         Touch to RESUME     "));lcd.setCursor (12, 0); lcd.print(F("P"));};
+
+    // homing
+    if(sofar>0 && buffer[sofar-2]=='0') { xHomed=true; lcd.setCursor (0, 1); lcd.print(F("X axis Homed        "));lcd.setCursor (17, 0); lcd.print(F("X"));};
+    if(sofar>0 && buffer[sofar-2]=='1') { yHomed=true; lcd.setCursor (0, 1); lcd.print(F("Y axis Homed        "));lcd.setCursor (18, 0); lcd.print(F("Y"));};
+    if(sofar>0 && buffer[sofar-2]=='2') { zHomed=true; lcd.setCursor (0, 1); lcd.print(F("Z axis Homed        "));lcd.setCursor (19, 0); lcd.print(F("Z"));};
 
       
       lcd.setCursor (0, 3);
@@ -1083,13 +1099,18 @@ void loop()
   // so this is mostly not needed.
   if(sofar>0 && buffer[sofar-3]=='-') {
     //if(sofar>0 && buffer[sofar-2]=='P') { /* Power LED & PSU   OFF */ if(powerLedPin>0){ digitalWriteFast(powerLedPin,LOW);}if(powerSupplyPin>0){digitalWriteFast(powerSupplyPin,!psuState);}}
-    if(sofar>0 && buffer[sofar-2]=='P') { powerState=false; lcd.setCursor (0, 1); lcd.print(F("Power Down.         "));lcd.setCursor (15, 0); lcd.print(F("_"));};
+    if(sofar>0 && buffer[sofar-2]=='E') { eStopState=false; lcd.setCursor (0, 1); lcd.print(F("eStop ACTIVE! Halted"));lcd.setCursor (15, 0); lcd.print(F("_"));};
+    if(sofar>0 && buffer[sofar-2]=='P') { powerState=false; lcd.setCursor (0, 1); lcd.print(F("Power Down.         "));lcd.setCursor (16, 0); lcd.print(F("_"));};
     //if(sofar>0 && buffer[sofar-2]=='E') { /* E-Stop Indicator  OFF */ if(eStopLedPin>0){digitalWriteFast(eStopLedPin,LOW);}}
-    if(sofar>0 && buffer[sofar-2]=='E') { eStopState=false; lcd.setCursor (0, 1); lcd.print(F("eStop ACTIVE! Halted"));lcd.setCursor (16, 0); lcd.print(F("_"));};
+    
 //    if(sofar>0 && buffer[sofar-2]=='S') { /* Spindle power     OFF */ spindleEnabled=false;}
 //    if(sofar>0 && buffer[sofar-2]=='D') { /* Spindle direction CCW */ if(spindleDirection>0){digitalWriteFast(spindleDirection,!spindleState);}}
 //    if(sofar>0 && buffer[sofar-2]=='M') { /* Coolant Mist      OFF */ if(coolantMistPin>0){digitalWriteFast(coolantMistPin,LOW);}}
 //    if(sofar>0 && buffer[sofar-2]=='F') { /* Coolant Flood     OFF */ if(coolantFloodPin>0){digitalWriteFast(coolantFloodPin,LOW);}}
+
+    if(sofar>0 && buffer[sofar-2]=='0') { xHomed=true; lcd.setCursor (0, 1); lcd.print(F("X axis Unhomed      "));lcd.setCursor (17, 0); lcd.print(F("_"));};
+    if(sofar>0 && buffer[sofar-2]=='1') { yHomed=true; lcd.setCursor (0, 1); lcd.print(F("Y axis Unhomed      "));lcd.setCursor (18, 0); lcd.print(F("_"));};
+    if(sofar>0 && buffer[sofar-2]=='2') { zHomed=true; lcd.setCursor (0, 1); lcd.print(F("Z axis Unhomed      "));lcd.setCursor (19, 0); lcd.print(F("_"));};
 
     // reset the buffer.
     sofar=0;
