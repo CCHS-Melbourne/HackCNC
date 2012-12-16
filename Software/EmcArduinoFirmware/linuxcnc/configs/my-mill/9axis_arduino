@@ -52,6 +52,16 @@ c.newpin("is0homed",hal.HAL_BIT,hal.HAL_IN)
 c.newpin("is1homed",hal.HAL_BIT,hal.HAL_IN)
 c.newpin("is2homed",hal.HAL_BIT,hal.HAL_IN)
 
+# Run states
+c.newpin("runState",hal.HAL_BIT,hal.HAL_IN)
+c.newpin("stopState",hal.HAL_BIT,hal.HAL_IN)
+c.newpin("pauseState",hal.HAL_BIT,hal.HAL_IN)
+
+# Position Feedback
+c.newpin("axis0-fb",hal.HAL_BIT,hal.HAL_IN)
+c.newpin("axis1-fb",hal.HAL_BIT,hal.HAL_IN)
+c.newpin("axis2-fb",hal.HAL_BIT,hal.HAL_IN)
+
 c.newpin("axis0-cmd",hal.HAL_FLOAT,hal.HAL_IN)
 c.newpin("axis1-cmd",hal.HAL_FLOAT,hal.HAL_IN)
 c.newpin("axis2-cmd",hal.HAL_FLOAT,hal.HAL_IN)
@@ -96,6 +106,10 @@ c.ready()
 machineState = c['machine-state']
 eStopState = c['eStop']
 
+runState = c['runState']
+pauseState = c['pauseState']
+stopState = c['stopState']
+
 is0homed = c['is0homed']
 is1homed = c['is1homed']
 is2homed = c['is2homed']
@@ -109,6 +123,8 @@ axis4cmd = c['axis5-cmd']
 axis6cmd = c['axis6-cmd']
 axis7cmd = c['axis7-cmd']
 axis8cmd = c['axis8-cmd']
+
+
 
 #Check if the machine is on and set the LED accordingly
 if(machineState != 1):
@@ -294,6 +310,27 @@ try:
 		ser.write("-2;")
 	is2homed = c['is2homed']
 
+    if(runState != c['runState']):
+	if(c['runState'] == 1):
+		ser.write("+r;")
+	else:
+		ser.write("-r;")
+	runState = c['runState']
+
+    if(stopState != c['stopState']):
+	if(c['stopState'] == 1):
+		ser.write("+s;")
+	else:
+		ser.write("-s;")
+	stopState = c['stopState']
+
+    if(pauseState != c['pauseState']):
+	if(c['pauseState'] == 1):
+		ser.write("+p;")
+	else:
+		ser.write("-p;")
+	runState = c['pauseState']
+
 
       #Check to see if we have a message waiting from the Arduino
     while ser.inWaiting():
@@ -304,6 +341,15 @@ try:
       #The Arduino generates two different key events
       #One when the key is pressed down (+S) and another when it is released (-S)
       #In this case we are going to ignore the release
+
+      # The current feedback from the steppers.
+      # test code.
+      # first, send a fb (feedback) code.
+      # Second, read from the string until a ; is found.
+      # third, split the string into x/y/z values.
+      # fourth, set the axisN-fb variable to the float
+      if(key == "fb"):
+	c['axis0-fb'] = 1
 
 # Set min limit triggers
       if(key == "x0"):

@@ -26,14 +26,17 @@ net turnon halui.machine.on <= arduino.switch-on
 	# Start/Run
 unlinkp halui.program.run
 net ProgramStart arduino.start => halui.program.run
+net ProgramRunStatus arduino.runState <= halui.program.is-running
 
 	# Stop
 unlinkp halui.program.stop
 net ProgramStop arduino.stop => halui.program.stop
+net ProgramStopStatus arduino.stopState <= halui.program.is-idle
 
 	# Pause
 unlinkp halui.program.pause
 net ProgramPause arduino.pause => halui.program.pause
+net ProgramPauseStatus arduino.pauseState <= halui.program.is-paused
 
 	# Resume
 unlinkp halui.program.resume
@@ -97,6 +100,7 @@ net is-2-homed arduino.is2homed <= halui.joint.2.is-homed
 
 unlinkp axis.0.motor-pos-cmd
 net xpos-cmd axis.0.motor-pos-cmd => arduino.axis0-cmd
+net xpos-fb axis.0.motor-pos-fb <= arduino.axis0-fb
 
 
 ### Y-axis (axis.1) ###
@@ -111,6 +115,7 @@ net xpos-cmd axis.0.motor-pos-cmd => arduino.axis0-cmd
 
 unlinkp axis.1.motor-pos-cmd
 net ypos-cmd axis.1.motor-pos-cmd => arduino.axis1-cmd
+net ypos-fb axis.1.motor-pos-fb <= arduino.axis1-fb
 
 
 ### Z-axis (axis.2) ###
@@ -125,6 +130,7 @@ net ypos-cmd axis.1.motor-pos-cmd => arduino.axis1-cmd
 
 unlinkp axis.2.motor-pos-cmd
 net zpos-cmd axis.2.motor-pos-cmd => arduino.axis2-cmd
+net zpos-fb axis.2.motor-pos-fb <= arduino.axis2-fb
 
 
 ### A-axis (axis.3) ###
