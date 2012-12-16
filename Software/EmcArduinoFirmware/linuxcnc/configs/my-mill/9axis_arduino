@@ -49,6 +49,8 @@ c.newpin("machine-state",hal.HAL_BIT,hal.HAL_IN)
 
 # homing pins
 c.newpin("is0homed",hal.HAL_BIT,hal.HAL_IN)
+c.newpin("is1homed",hal.HAL_BIT,hal.HAL_IN)
+c.newpin("is2homed",hal.HAL_BIT,hal.HAL_IN)
 
 c.newpin("axis0-cmd",hal.HAL_FLOAT,hal.HAL_IN)
 c.newpin("axis1-cmd",hal.HAL_FLOAT,hal.HAL_IN)
@@ -109,6 +111,9 @@ axis8cmd = c['axis8-cmd']
 #Check if the machine is on and set the LED accordingly
 if(machineState != 1):
   ser.write("+P")
+
+if(eStopState != 1):
+  ser.write("+E")
 
 axis0cmdOld = 0;
 axis1cmdOld = 0;
@@ -255,15 +260,15 @@ try:
       machineState = c['machine-state']
 
     #Check the machine State
-    if(machineState != c['machine-state']):
-      if(c['machine-state'] == 1):
+    if(eStopState != c['eStop']):
+      if(c['eStop'] == 1):
         #The machine is on, so turn on the power LED
-        ser.write("+P;")
+        ser.write("+E;")
       else:
         #opposite of above
-        ser.write("-P;")
+        ser.write("-E;")
       #update the machine state variable
-      machineState = c['machine-state']
+      eStopState = c['eStopState']
     
     #check if the machine is homed.
     if(is0homed != c['is0homed']):
@@ -272,6 +277,20 @@ try:
 	else:
 		ser.write("-0;")
 	is0homed = c['is0homed']
+
+    if(is0homed != c['is1homed']):
+	if(c['is1homed'] == 1):
+		ser.write("+1;")
+	else:
+		ser.write("-1;")
+	is0homed = c['is1homed']
+
+    if(is0homed != c['is2homed']):
+	if(c['is2homed'] == 1):
+		ser.write("+2;")
+	else:
+		ser.write("-2;")
+	is0homed = c['is2homed']
 
 
       #Check to see if we have a message waiting from the Arduino
