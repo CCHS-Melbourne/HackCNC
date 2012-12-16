@@ -66,7 +66,7 @@ byte pos;
 
 // These will be used in the near future.
 #define VERSION "00072"      // 5 caracters
-#define ROLE    "hackCNC" // 10 characters
+#define ROLE    "hackCNC   " // 10 characters
 
 
 //Pitch = mm/turn = 1.25 mm/turn
@@ -1024,6 +1024,14 @@ void setup()
   while (!Serial) {
     ; // wait for serial port to connect. Needed for Leonardo/32u4
   }
+  
+  // nothing will happen until we have a valid serial connection.
+  lcd.setCursor (0, 1);
+  lcd.print(F("LinuxCNC Connected. "));
+  lcd.setCursor (0, 2);
+  lcd.print(F("                    "));
+  lcd.setCursor (15, 0);
+  lcd.print(F("_____"));
 
   // Initialize serial command buffer.
   sofar=0;
@@ -1052,21 +1060,19 @@ void loop()
  
   // Received a "+" turn something on.
   if(sofar>0 && buffer[sofar-3]=='+') {
+
     //if(sofar>0 && buffer[sofar-2]=='P') { /* Power LED & PSU   ON */ if(powerLedPin>0){digitalWriteFast(powerLedPin,HIGH);}if(powerSupplyPin>0){digitalWriteFast(powerSupplyPin,psuState);}}
-    if(sofar>0 && buffer[sofar-2]=='P') { powerState=true; };
+    if(sofar>0 && buffer[sofar-2]=='P') { powerState=true; lcd.setCursor (0, 1); lcd.print(F("Power Initialised.  "));lcd.setCursor (15, 0); lcd.print(F("P"));};
     //if(sofar>0 && buffer[sofar-2]=='E') { /* E-Stop Indicator  ON */ if(eStopLedPin>0){digitalWriteFast(eStopLedPin,HIGH);}}
-    if(sofar>0 && buffer[sofar-2]=='E') { eStopState=true; };
+    if(sofar>0 && buffer[sofar-2]=='E') { eStopState=true; lcd.setCursor (0, 1); lcd.print(F("eStop Open.         "));lcd.setCursor (16, 0); lcd.print(F("E"));};
 //    if(sofar>0 && buffer[sofar-2]=='S') { /* Spindle power     ON */ spindleEnabled=true;}
 //    if(sofar>0 && buffer[sofar-2]=='D') { /* Spindle direction CW */ if(spindleDirection>0){digitalWriteFast(spindleDirection,spindleState);}}
 //    if(sofar>0 && buffer[sofar-2]=='M') { /* Coolant Mist      ON */ if(coolantMistPin>0){digitalWriteFast(coolantMistPin,HIGH);}}
 //    if(sofar>0 && buffer[sofar-2]=='F') { /* Coolant Flood     ON */ if(coolantFloodPin>0){digitalWriteFast(coolantFloodPin,HIGH);}}
 
-      lcd.setCursor (0, 1);
-      lcd.print(F("LinuxCNC Connected. "));
-      lcd.setCursor (0, 2);
-      lcd.print(F("Power Initialised.  "));
+      
       lcd.setCursor (0, 3);
-      lcd.print(F("                    ")); // 20 spaces! must be a better way
+      lcd.print(F("                    "));
       
       // reset the buffer
       sofar=0;  
@@ -1077,22 +1083,14 @@ void loop()
   // so this is mostly not needed.
   if(sofar>0 && buffer[sofar-3]=='-') {
     //if(sofar>0 && buffer[sofar-2]=='P') { /* Power LED & PSU   OFF */ if(powerLedPin>0){ digitalWriteFast(powerLedPin,LOW);}if(powerSupplyPin>0){digitalWriteFast(powerSupplyPin,!psuState);}}
-    if(sofar>0 && buffer[sofar-2]=='P') { powerState=false; };
+    if(sofar>0 && buffer[sofar-2]=='P') { powerState=false; lcd.setCursor (0, 1); lcd.print(F("Power Down.         "));lcd.setCursor (15, 0); lcd.print(F("_"));};
     //if(sofar>0 && buffer[sofar-2]=='E') { /* E-Stop Indicator  OFF */ if(eStopLedPin>0){digitalWriteFast(eStopLedPin,LOW);}}
-    if(sofar>0 && buffer[sofar-2]=='E') { eStopState=false; };
+    if(sofar>0 && buffer[sofar-2]=='E') { eStopState=false; lcd.setCursor (0, 1); lcd.print(F("eStop ACTIVE! Halted"));lcd.setCursor (16, 0); lcd.print(F("_"));};
 //    if(sofar>0 && buffer[sofar-2]=='S') { /* Spindle power     OFF */ spindleEnabled=false;}
 //    if(sofar>0 && buffer[sofar-2]=='D') { /* Spindle direction CCW */ if(spindleDirection>0){digitalWriteFast(spindleDirection,!spindleState);}}
 //    if(sofar>0 && buffer[sofar-2]=='M') { /* Coolant Mist      OFF */ if(coolantMistPin>0){digitalWriteFast(coolantMistPin,LOW);}}
 //    if(sofar>0 && buffer[sofar-2]=='F') { /* Coolant Flood     OFF */ if(coolantFloodPin>0){digitalWriteFast(coolantFloodPin,LOW);}}
 
-    // clear the LCD
-    lcd.setCursor (0, 1);
-    lcd.print(F("Disconnected.       "));
-    lcd.setCursor (0, 2);
-    lcd.print(F("Waiting For LinuxCNC"));
-    lcd.setCursor (0, 3);
-    lcd.print(F("                    ")); // 20 spaces! must be a better way
-    
     // reset the buffer.
     sofar=0;
   }
@@ -1111,14 +1109,12 @@ void loop()
      Serial.println(ROLE);
       lcd.setCursor (0, 3);
       lcd.print(F(ROLE));
-      lcd.print(F("             ")); // match the Role length.  Cheating
+      lcd.print(F("          ")); // match the Role length.  Cheating
     }
     
     // reset the buffer.
     sofar=0;
   }
-  
-  //Serial.println(powerState);
   
   // if we hit a semi-colon, assume end of instruction.
   // Do NOT EXECUTE instructions if E-STOP or Power is off!
