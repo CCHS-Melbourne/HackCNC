@@ -71,10 +71,10 @@ unlinkp halui.joint.0.is-homed
 net is-0-homed arduino.is0homed <= halui.joint.0.is-homed
 
 unlinkp halui.joint.1.is-homed
-net is-1-homed arduino.is1homed <= halui.joint.1.is-home
+net is-1-homed arduino.is1homed <= halui.joint.1.is-homed
 
 unlinkp halui.joint.2.is-homed
-net is-2-homed arduino.is2homed <= halui.joint.2.is-home
+net is-2-homed arduino.is2homed <= halui.joint.2.is-homed
 
 ###############################################################################
 ##### Now on to the axies, if you don't have a given axis comment out the #####
