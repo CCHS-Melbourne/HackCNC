@@ -10,10 +10,10 @@ loadusr -Wn arduino /usr/bin/9axis_arduino
 
 # Control panel switches
 	# E-Stop
-#unlinkp iocontrol.0.user-enable-out
-#unlinkp iocontrol.0.emc-enable-in
-#net eStop iocontrol.0.user-enable-out => arduino.eStop
-#net eStop iocontrol.0.emc-enable-in <= arduino.eStop
+unlinkp iocontrol.0.user-enable-out
+unlinkp iocontrol.0.emc-enable-in
+net eStop iocontrol.0.user-enable-out => arduino.eStop
+net eStop iocontrol.0.emc-enable-in <= arduino.eStop
 
 	# Power
 unlinkp halui.machine.is-on
@@ -69,6 +69,12 @@ net ProgramStep arduino.step => halui.program.step
 
 unlinkp halui.joint.0.is-homed
 net is-0-homed arduino.is0homed <= halui.joint.0.is-homed
+
+unlinkp halui.joint.1.is-homed
+net is-1-homed arduino.is1homed <= halui.joint.1.is-home
+
+unlinkp halui.joint.2.is-homed
+net is-2-homed arduino.is2homed <= halui.joint.2.is-home
 
 ###############################################################################
 ##### Now on to the axies, if you don't have a given axis comment out the #####

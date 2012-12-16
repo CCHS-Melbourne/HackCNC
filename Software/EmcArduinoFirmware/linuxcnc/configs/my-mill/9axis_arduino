@@ -97,6 +97,8 @@ machineState = c['machine-state']
 eStopState = c['eStop']
 
 is0homed = c['is0homed']
+is1homed = c['is1homed']
+is2homed = c['is2homed']
 
 axis0cmd = c['axis0-cmd']
 axis1cmd = c['axis1-cmd']
@@ -278,19 +280,19 @@ try:
 		ser.write("-0;")
 	is0homed = c['is0homed']
 
-    if(is0homed != c['is1homed']):
+    if(is1homed != c['is1homed']):
 	if(c['is1homed'] == 1):
 		ser.write("+1;")
 	else:
 		ser.write("-1;")
-	is0homed = c['is1homed']
+	is1homed = c['is1homed']
 
-    if(is0homed != c['is2homed']):
+    if(is2homed != c['is2homed']):
 	if(c['is2homed'] == 1):
 		ser.write("+2;")
 	else:
 		ser.write("-2;")
-	is0homed = c['is2homed']
+	is2homed = c['is2homed']
 
 
       #Check to see if we have a message waiting from the Arduino
