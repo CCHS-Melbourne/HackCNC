@@ -58,9 +58,9 @@ c.newpin("stopState",hal.HAL_BIT,hal.HAL_IN)
 c.newpin("pauseState",hal.HAL_BIT,hal.HAL_IN)
 
 # Position Feedback
-c.newpin("axis0-fb",hal.HAL_BIT,hal.HAL_IN)
-c.newpin("axis1-fb",hal.HAL_BIT,hal.HAL_IN)
-c.newpin("axis2-fb",hal.HAL_BIT,hal.HAL_IN)
+c.newpin("axis0-fb",hal.HAL_FLOAT,hal.HAL_IN)
+c.newpin("axis1-fb",hal.HAL_FLOAT,hal.HAL_IN)
+c.newpin("axis2-fb",hal.HAL_FLOAT,hal.HAL_IN)
 
 c.newpin("axis0-cmd",hal.HAL_FLOAT,hal.HAL_IN)
 c.newpin("axis1-cmd",hal.HAL_FLOAT,hal.HAL_IN)
