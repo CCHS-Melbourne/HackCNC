@@ -270,7 +270,7 @@ try:
         #opposite of above
         ser.write("-E;")
       #update the machine state variable
-      eStopState = c['eStopState']
+      eStopState = c['eStop']
     
     #check if the machine is homed.
     if(is0homed != c['is0homed']):
