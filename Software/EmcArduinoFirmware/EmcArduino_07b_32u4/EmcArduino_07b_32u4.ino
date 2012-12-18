@@ -1077,9 +1077,11 @@ void loop()
 //    if(sofar>0 && buffer[sofar-2]=='F') { /* Coolant Flood     ON */ if(coolantFloodPin>0){digitalWriteFast(coolantFloodPin,HIGH);}}
 
     // Running code state
-    if(sofar>0 && buffer[sofar-2]=='r') { xHomed=true; lcd.setCursor (0, 1); lcd.print(F("Running gCode       Touch to PAUSE      "));lcd.setCursor (12, 0); lcd.print(F("R"));};
-    if(sofar>0 && buffer[sofar-2]=='s') { xHomed=true; lcd.setCursor (0, 1); lcd.print(F("Run Stopped!                            "));lcd.setCursor (12, 0); lcd.print(F("S"));};
-    if(sofar>0 && buffer[sofar-2]=='p') { xHomed=true; lcd.setCursor (0, 1); lcd.print(F("Run Paused!         Touch to RESUME     "));lcd.setCursor (12, 0); lcd.print(F("P"));};
+    // These are mutually exclusive so don't need a - set.
+    // Should be a better way
+    if(sofar>0 && buffer[sofar-2]=='r') { lcd.setCursor (0, 1); lcd.print(F("Running gCode       "));lcd.setCursor (0, 2);lcd.print(F("Touch to PAUSE      "));lcd.setCursor (12, 0); lcd.print(F("R"));};
+    if(sofar>0 && buffer[sofar-2]=='s') { lcd.setCursor (0, 1); lcd.print(F("Run Stopped!        "));lcd.setCursor (0, 2);lcd.print(F("                    "));lcd.setCursor (12, 0); lcd.print(F("S"));};
+    if(sofar>0 && buffer[sofar-2]=='p') { lcd.setCursor (0, 1); lcd.print(F("Run Paused!         "));lcd.setCursor (0, 2);lcd.print(F("Touch to RESUME     "));lcd.setCursor (12, 0); lcd.print(F("P"));};
 
     // homing
     if(sofar>0 && buffer[sofar-2]=='0') { xHomed=true; lcd.setCursor (0, 1); lcd.print(F("X axis Homed        "));lcd.setCursor (17, 0); lcd.print(F("X"));};
@@ -1146,10 +1148,11 @@ void loop()
     
     // output the command
     Serial.println(buffer);
-    lcd.setCursor (0, 2); // could have sworn this should be 0,1
-    lcd.print(F("                                                            ")); // three lines of spaces
-    lcd.setCursor (0, 1);
-    lcd.print(buffer);
+    // this stuff seems to really slow down the processing.
+    //lcd.setCursor (0, 2); // could have sworn this should be 0,1
+    //lcd.print(F("                                                            ")); // three lines of spaces
+    //lcd.setCursor (0, 2);
+    //lcd.print(buffer);
  
     // do something with the command
     processCommand();
