@@ -786,6 +786,22 @@ void stepLight() // Set by jog() && Used by loop()
       if(giveFeedBackW){fbw=stepper8Pos/4/(stepsPerInchW*0.5);if(!busy){if(fbw!=fbwOld){fbwOld=fbw;Serial.print("fw");Serial.println(fbw,6);}}}
 */
     }
+    
+    /*
+    lcd.setCursor (0, 2);
+    lcd.print(F("X"));
+    lcd.print(stepper0Pos);
+    */
+    if(stepper0Pos==stepper0Goto){
+    lcd.setCursor (10, 2);
+    lcd.print(F("/"));
+    lcd.print(stepper0Goto);
+    }
+    /*
+    lcd.setCursor (0, 3);
+    lcd.print(F("Y"));
+    lcd.print(stepper1Pos);
+    */
 
     stepTimeOld=curTime;
   }
@@ -1147,7 +1163,7 @@ void loop()
     buffer[sofar]=0;
     
     // output the command
-    Serial.println(buffer);
+    //Serial.println(buffer);
     // this stuff seems to really slow down the processing.
     //lcd.setCursor (0, 2); // could have sworn this should be 0,1
     //lcd.print(F("                                                            ")); // three lines of spaces
