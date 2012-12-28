@@ -18,10 +18,14 @@ Note concerning switches: Be smart!
     Or worse, you'll forget (only once) to reset it, and upon homing
     it WILL destroy itself while you go -> WTF!? -> OMG! -> PANIC! -> FACEPALM!
 
- List of axies. All 9 of them.
+ List of axies. All 3 of them.
      AXIS_0 = X (Left/Right)
      AXIS_1 = Y (Near/Far) Lathes use this for tool depth.
      AXIS_2 = Z (Up/Down) Not typically used for lathes. Except lathe/mill combo.
+     
+     
+  Remember, LinuxCNC sends out a bunch of stepper commands rather than an exact location
+  This means tuning the speed LinuxCNC sends out commands is important.
 
 
   DYI robot builders: You can monitor/control this sketch via a serial interface.
@@ -79,7 +83,7 @@ byte pos;
 
 //#define minStepTime 25 //delay in MICROseconds between step pulses.
 //#define minStepTime 625
-#define minStepTime 57
+#define minStepTime 77
 
 // step pins (required)
 #define stepPin0 10 //x step D10 - pin 30
@@ -333,6 +337,13 @@ float fbxOld=0;
 float fbyOld=0;
 float fbzOld=0;
 
+// The current state of the program
+// mainly used for the LCD
+char runState='o'; // Off, Stopped, Running, Paused.
+
+// update the LCD every X iterations
+int updateInterval = 0;
+
 
 //void jog(float x, float y, float z, float a, float b, float c, float u, float v, float w)
 
@@ -404,17 +415,6 @@ void processCommand()
   }
   
   jog(xx,yy,zz);
-  
-  if(globalBusy<15)
-  {
-    // Insert LCD call here. (Updated when mostly idle.) Future project.
-    lcd.setCursor (0, 3);
-    lcd.print(F("X:"));
-    lcd.print(pos_x);
-    lcd.setCursor (10, 3);
-    lcd.print(F("Y:"));
-    lcd.print(pos_y);
-  }
 }
 
 void move_servo(float pos){
@@ -437,10 +437,12 @@ void move_servo(float pos){
 void stepLight() // Set by jog() && Used by loop()
 {
   unsigned long curTime=micros();
+  int busy;
+  
   if(curTime - stepTimeOld >= minStepTime)
   {
     stepState=!stepState;
-    int busy=0;
+    busy=0;
 
     // so, the stepper position hasn't reached it's destination.
     // 
@@ -452,25 +454,28 @@ void stepLight() // Set by jog() && Used by loop()
         stepper0Pos--;
       }
       else{
+        // so the stepper has reached it's destination.
         digitalWriteFast(dirPin0, dirState0);
         digitalWriteFast(stepPin0,stepState);
         stepper0Pos++;
       }
     }
+    
     if(stepper1Pos != stepper1Goto){busy++;if(stepper1Pos > stepper1Goto){digitalWriteFast(dirPin1,!dirState1);digitalWriteFast(stepPin1,stepState);stepper1Pos--;}else{digitalWriteFast(dirPin1, dirState1);digitalWriteFast(stepPin1,stepState);stepper1Pos++;}}
     // if(stepper2Pos != stepper2Goto){busy++;if(stepper2Pos > stepper2Goto){digitalWriteFast(dirPin2,!dirState2);digitalWriteFast(stepPin2,stepState);stepper2Pos--;}else{digitalWriteFast(dirPin2, dirState2);digitalWriteFast(stepPin2,stepState);stepper2Pos++;}}
 
+    
 
     // we have a busy value, so we're still moving.
     if(busy){
       digitalWriteFast(idleIndicator,LOW);
-      // increment to stay we're still busy.
+      // increment to say we're still busy.
       if(globalBusy<255){
         globalBusy++;
       }
     }
     else{
-      // not busy, time to work on some 
+      // not busy, time to do some feedback
       digitalWriteFast(idleIndicator,HIGH);
       if(globalBusy>0){
         globalBusy--;
@@ -527,12 +532,6 @@ void stepMode(int axis, int mode) // May be omitted in the future. (Undecided)
   if(axis == 0 || 9){if(mode!=stepModeX){digitalWriteFast(chanXms1,ms1);digitalWriteFast(chanXms2,ms2);digitalWriteFast(chanXms3,ms3);stepModeX=count;}}
   if(axis == 1 || 9){if(mode!=stepModeY){digitalWriteFast(chanYms1,ms1);digitalWriteFast(chanYms2,ms2);digitalWriteFast(chanYms3,ms3);stepModeY=count;}}
   if(axis == 2 || 9){if(mode!=stepModeZ){digitalWriteFast(chanZms1,ms1);digitalWriteFast(chanZms2,ms2);digitalWriteFast(chanZms3,ms3);stepModeZ=count;}}
-  if(axis == 3 || 9){if(mode!=stepModeA){digitalWriteFast(chanAms1,ms1);digitalWriteFast(chanAms2,ms2);digitalWriteFast(chanAms3,ms3);stepModeA=count;}}
-  if(axis == 4 || 9){if(mode!=stepModeB){digitalWriteFast(chanBms1,ms1);digitalWriteFast(chanBms2,ms2);digitalWriteFast(chanBms3,ms3);stepModeB=count;}}
-  if(axis == 5 || 9){if(mode!=stepModeC){digitalWriteFast(chanCms1,ms1);digitalWriteFast(chanCms2,ms2);digitalWriteFast(chanCms3,ms3);stepModeC=count;}}
-  if(axis == 6 || 9){if(mode!=stepModeU){digitalWriteFast(chanUms1,ms1);digitalWriteFast(chanUms2,ms2);digitalWriteFast(chanUms3,ms3);stepModeU=count;}}
-  if(axis == 7 || 9){if(mode!=stepModeV){digitalWriteFast(chanVms1,ms1);digitalWriteFast(chanVms2,ms2);digitalWriteFast(chanVms3,ms3);stepModeV=count;}}
-  if(axis == 8 || 9){if(mode!=stepModeW){digitalWriteFast(chanWms1,ms1);digitalWriteFast(chanWms2,ms2);digitalWriteFast(chanWms3,ms3);stepModeW=count;}}
 
 }
 */
@@ -726,6 +725,7 @@ void loop()
   }
  
   // Received a "+" turn something on.
+  // Setting LCD status information here won't slow down processing.
   if(sofar>0 && buffer[sofar-3]=='+') {
 
     //if(sofar>0 && buffer[sofar-2]=='P') { /* Power LED & PSU   ON */ if(powerLedPin>0){digitalWriteFast(powerLedPin,HIGH);}if(powerSupplyPin>0){digitalWriteFast(powerSupplyPin,psuState);}}
@@ -741,19 +741,16 @@ void loop()
     // Running code state
     // These are mutually exclusive so don't need a - set.
     // Should be a better way
-    if(sofar>0 && buffer[sofar-2]=='r') { lcd.setCursor (0, 1); lcd.print(F("Running gCode       "));lcd.setCursor (0, 2);lcd.print(F("Touch to PAUSE      "));lcd.setCursor (12, 0); lcd.print(F("R"));};
-    if(sofar>0 && buffer[sofar-2]=='s') { lcd.setCursor (0, 1); lcd.print(F("Run Stopped!        "));lcd.setCursor (0, 2);lcd.print(F("                    "));lcd.setCursor (12, 0); lcd.print(F("S"));};
-    if(sofar>0 && buffer[sofar-2]=='p') { lcd.setCursor (0, 1); lcd.print(F("Run Paused!         "));lcd.setCursor (0, 2);lcd.print(F("Touch to RESUME     "));lcd.setCursor (12, 0); lcd.print(F("P"));};
+    if(sofar>0 && buffer[sofar-2]=='r') { runState = 'r'; lcd.setCursor (12, 0); lcd.print(F("R"));lcd.setCursor (0, 1); lcd.print(F("Running gCode       "));lcd.setCursor (0, 2);lcd.print(F("Touch to PAUSE      "));};
+    // extra check to make sure the machine wasn't off.
+    if(sofar>0 && buffer[sofar-2]=='s' && runState!='o' ) { runState = 's'; lcd.setCursor (12, 0); lcd.print(F("S"));lcd.setCursor (0, 1); lcd.print(F("Run Stopped!        "));lcd.setCursor (0, 2);lcd.print(F("                    "));};
+    if(sofar>0 && buffer[sofar-2]=='p') { runState = 'r'; lcd.setCursor (12, 0); lcd.print(F("P"));lcd.setCursor (0, 1); lcd.print(F("Run Paused!         "));lcd.setCursor (0, 2);lcd.print(F("Touch to RESUME     "));};
 
     // homing
     if(sofar>0 && buffer[sofar-2]=='0') { xHomed=true; lcd.setCursor (0, 1); lcd.print(F("X axis Homed        "));lcd.setCursor (17, 0); lcd.print(F("X"));};
     if(sofar>0 && buffer[sofar-2]=='1') { yHomed=true; lcd.setCursor (0, 1); lcd.print(F("Y axis Homed        "));lcd.setCursor (18, 0); lcd.print(F("Y"));};
     if(sofar>0 && buffer[sofar-2]=='2') { zHomed=true; lcd.setCursor (0, 1); lcd.print(F("Z axis Homed        "));lcd.setCursor (19, 0); lcd.print(F("Z"));};
-
-      
-      lcd.setCursor (0, 3);
-      lcd.print(F("                    "));
-      
+ 
       // reset the buffer
       sofar=0;  
   }
@@ -822,9 +819,46 @@ void loop()
     // reset the buffer
     sofar=0;
   }
+  
+  // bit of ugly test code
+  
+  //float test2 = pos_x * 10;
+  int test = (int) (pos_x*10) ;
+  
+  lcd.setCursor (0, 2);
+  lcd.print((float)test);
+  lcd.print(F("/"));
+  lcd.print(pos_x*10);
+  
+  // globalBusy is all well and good, but if the machine is working it will never update.
+  // We have to find a good balance between performance and update cycle
+  //if(powerState && globalBusy<15)
+  //if(powerState && updateInterval>=30000)
+  if(powerState && ((float)test) == (pos_x*10))
+  {
+    // Insert LCD call here. (Updated when mostly idle.) Future project.
+    lcd.setCursor (0, 3);
+    lcd.print(F("X:"));
+    lcd.print(pos_x);
+    lcd.setCursor (7, 3);
+    lcd.print(F("Y:"));
+    lcd.print(pos_y);
+    lcd.setCursor (14, 3);
+    lcd.print(F("Z:"));
+    lcd.print(pos_y);
+    
+    //updateInterval=0;
+  }
+  
+  //updateInterval++;
+  
 /*
   updateSpindleRevs();
   if(!globalBusy){boolean spindleAtSpeedState=spindleAtSpeed();if(spindleAtSpeedState != spindleAtSpeedStateOld){spindleAtSpeedStateOld=spindleAtSpeedState;Serial.print("S");Serial.println(spindleAtSpeedState);}}
 */
+
+  //lcd.setCursor (0, 2);
+  //lcd.print(globalBusy);
+
   stepLight(); // call every loop cycle to update stepper motion.
 }
