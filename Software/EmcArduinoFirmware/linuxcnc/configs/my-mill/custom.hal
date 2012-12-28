@@ -2,7 +2,7 @@
 # This file will not be overwritten when you run stepconf again
 
 #First load the Python user module named /user/bin/9axis_arduino with the name 'arduino'
-loadusr -Wn arduino /usr/bin/9axis_arduino
+loadusr -Wn arduino /usr/bin/3axis_arduino
 
 #Second 'unlinkp' our pins to make them available for use.
 # Then use 'net' to recreate/hook into them.
@@ -131,88 +131,3 @@ net ypos-fb axis.1.motor-pos-fb <= arduino.axis1-fb
 unlinkp axis.2.motor-pos-cmd
 net zpos-cmd axis.2.motor-pos-cmd => arduino.axis2-cmd
 net zpos-fb axis.2.motor-pos-fb <= arduino.axis2-fb
-
-
-### A-axis (axis.3) ###
-#unlinkp axis.3.home-sw-in
-#net home-A arduino.aHome => axis.3.home-sw-in
-
-#unlinkp axis.3.neg-lim-sw-in
-#net min-A => arduino.aMinLmt => axis.3.neg-lim-sw-in
-
-#unlinkp axis.3.pos-lim-sw-in
-#net max-A => arduino.aMaxLmt => axis.3.pos-lim-sw-in
-
-#unlinkp axis.3.motor-pos-cmd
-#net apos-cmd axis.3.motor-pos-cmd => arduino.axis3-cmd
-
-
-### B-axis (axis.4) ###
-#unlinkp axis.4.home-sw-in
-#net home-B arduino.bHome => axis.4.home-sw-in
-
-#unlinkp axis.4.neg-lim-sw-in
-#net min-B => arduino.bMinLmt => axis.4.neg-lim-sw-in
-
-#unlinkp axis.4.pos-lim-sw-in
-#net max-B => arduino.bMaxLmt => axis.4.pos-lim-sw-in
-
-#unlinkp axis.4.motor-pos-cmd
-#net bpos-cmd axis.4.motor-pos-cmd => arduino.axis4-cmd
-
-
-### C-axis (axis.5) ###
-#unlinkp axis.5.home-sw-in
-#net home-C arduino.cHome => axis.5.home-sw-in
-
-#unlinkp axis.5.neg-lim-sw-in
-#net min-C => arduino.cMinLmt => axis.5.neg-lim-sw-in
-
-#unlinkp axis.5.pos-lim-sw-in
-#net max-C => arduino.cMaxLmt => axis.5.pos-lim-sw-in
-
-#unlinkp axis.5.motor-pos-cmd
-#net cpos-cmd axis.5.motor-pos-cmd => arduino.axis5-cmd
-
-
-### U-axis (axis.6) ###
-#unlinkp axis.6.home-sw-in
-#net home-U arduino.uHome => axis.6.home-sw-in
-
-#unlinkp axis.6.neg-lim-sw-in
-#net min-U => arduino.uMinLmt => axis.6.neg-lim-sw-in
-
-#unlinkp axis.6.pos-lim-sw-in
-#net max-U => arduino.uMaxLmt => axis.6.pos-lim-sw-in
-
-#unlinkp axis.6.motor-pos-cmd
-#net upos-cmd axis.6.motor-pos-cmd => arduino.axis6-cmd
-
-
-### V-axis (axis.7) ###
-#unlinkp axis.7.home-sw-in
-#net home-V arduino.vHome => axis.7.home-sw-in
-
-#unlinkp axis.7.neg-lim-sw-in
-#net min-V => arduino.vMinLmt => axis.7.neg-lim-sw-in
-
-#unlinkp axis.7.pos-lim-sw-in
-#net max-V => arduino.vMaxLmt => axis.7.pos-lim-sw-in
-
-#unlinkp axis.7.motor-pos-cmd
-#net vpos-cmd axis.7.motor-pos-cmd => arduino.axis7-cmd
-
-
-### W-axis (axis.8) ###
-#unlinkp axis.8.home-sw-in
-#net home-W arduino.wHome => axis.8.home-sw-in
-
-#unlinkp axis.8.neg-lim-sw-in
-#net min-W => arduino.wMinLmt => axis.8.neg-lim-sw-in
-
-#unlinkp axis.8.pos-lim-sw-in
-#net max-W => arduino.wMaxLmt => axis.8.pos-lim-sw-in
-
-#unlinkp axis.7.motor-pos-cmd
-#net wpos-cmd axis.8.motor-pos-cmd => arduino.axis8-cmd
-

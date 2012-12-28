@@ -1,0 +1,387 @@
+#!/usr/bin/python
+#    HAL userspace component to interface with Arduino board
+#    by Colin Kingsbury (http://ckcnc.wordpress.com_)
+#    Inspired by the earlier example from Jeff Epler
+#
+#    Modified by Duane Bishop for use with EMC-2-Arduino
+#	(https://github.com/dewy721/EMC-2-Arduino)
+#
+#    Re-Modified by John Spencer for 3 axis hackCNC
+#	(https://github.com/CCHS-Melbourne/HackCNC)
+#
+#    This program is free software; you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation; either version 2 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program; if not, write to the Free Software
+#    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+import serial
+import hal
+import sys
+import time
+
+#First we open the serial port. This should correspond to the port the Arduino
+#is connected to. This can be found in the Arduino IDE in Tools->Serial Port
+PORT = "/dev/ttyACM0"
+ser = serial.Serial(PORT, 115200, timeout=15)
+
+#Now we create the HAL component and its pins
+c = hal.component("arduino")
+c.newpin("switch-on",hal.HAL_BIT,hal.HAL_IN)
+c.newpin("switch-off",hal.HAL_BIT,hal.HAL_IN)
+c.newpin("eStop",hal.HAL_BIT,hal.HAL_IN)
+c.newpin("probe",hal.HAL_BIT,hal.HAL_IN)
+c.newpin("spindleEnable",hal.HAL_BIT,hal.HAL_IN)
+c.newpin("spindleDirection",hal.HAL_BIT,hal.HAL_IN)
+c.newpin("spindleAtSpeed",hal.HAL_BIT,hal.HAL_IN)
+c.newpin("coolantMist",hal.HAL_BIT,hal.HAL_IN)
+c.newpin("coolantFlood",hal.HAL_BIT,hal.HAL_IN)
+c.newpin("start",hal.HAL_BIT,hal.HAL_IN)
+c.newpin("stop",hal.HAL_BIT,hal.HAL_IN)
+c.newpin("pause",hal.HAL_BIT,hal.HAL_IN)
+c.newpin("resume",hal.HAL_BIT,hal.HAL_IN)
+c.newpin("step",hal.HAL_BIT,hal.HAL_IN)
+c.newpin("machine-state",hal.HAL_BIT,hal.HAL_IN)
+
+# homing pins
+c.newpin("is0homed",hal.HAL_BIT,hal.HAL_IN)
+c.newpin("is1homed",hal.HAL_BIT,hal.HAL_IN)
+c.newpin("is2homed",hal.HAL_BIT,hal.HAL_IN)
+
+# Run states
+c.newpin("runState",hal.HAL_BIT,hal.HAL_IN)
+c.newpin("stopState",hal.HAL_BIT,hal.HAL_IN)
+c.newpin("pauseState",hal.HAL_BIT,hal.HAL_IN)
+
+# Position Feedback
+c.newpin("axis0-fb",hal.HAL_FLOAT,hal.HAL_IN)
+c.newpin("axis1-fb",hal.HAL_FLOAT,hal.HAL_IN)
+c.newpin("axis2-fb",hal.HAL_FLOAT,hal.HAL_IN)
+
+c.newpin("axis0-cmd",hal.HAL_FLOAT,hal.HAL_IN)
+c.newpin("axis1-cmd",hal.HAL_FLOAT,hal.HAL_IN)
+c.newpin("axis2-cmd",hal.HAL_FLOAT,hal.HAL_IN)
+
+c.newpin("xMinLmt",hal.HAL_BIT,hal.HAL_IN)
+c.newpin("yMinLmt",hal.HAL_BIT,hal.HAL_IN)
+c.newpin("zMinLmt",hal.HAL_BIT,hal.HAL_IN)
+
+c.newpin("xMaxLmt",hal.HAL_BIT,hal.HAL_IN)
+c.newpin("yMaxLmt",hal.HAL_BIT,hal.HAL_IN)
+c.newpin("zMaxLmt",hal.HAL_BIT,hal.HAL_IN)
+
+c.newpin("xHome",hal.HAL_BIT,hal.HAL_IN)
+c.newpin("yHome",hal.HAL_BIT,hal.HAL_IN)
+c.newpin("zHome",hal.HAL_BIT,hal.HAL_IN)
+
+time.sleep(2)
+c.ready()
+
+#We save the machine state (i.e. whether it's off or on) so that we only
+#send a message to the Arduino when it changes
+machineState = c['machine-state']
+eStopState = c['eStop']
+
+runState = c['runState']
+pauseState = c['pauseState']
+stopState = c['stopState']
+
+is0homed = c['is0homed']
+is1homed = c['is1homed']
+is2homed = c['is2homed']
+
+axis0cmd = c['axis0-cmd']
+axis1cmd = c['axis1-cmd']
+axis2cmd = c['axis2-cmd']
+
+
+
+#Check if the machine is on and set the LED accordingly
+if(machineState != 1):
+  ser.write("+P")
+
+if(eStopState != 1):
+  ser.write("+E")
+
+axis0cmdOld = 0;
+axis1cmdOld = 0;
+axis2cmdOld = 0;
+
+coolantMistOld = 0;
+coolantFloodOld = 0;
+spindleEnableOld = 0;
+spindleDirectionOld = 0;
+
+try:
+  while 1:
+    time.sleep(.01)
+
+    axis0cmd = c['axis0-cmd'];
+    if axis0cmd != axis0cmdOld:
+      axis0cmdOld = axis0cmd;
+      axis0icmd = c['axis0-cmd'] * 1000000
+      ser.write("jog X");
+      ser.write(repr(axis0icmd))
+      ser.write(";");
+      ser.write("\n");
+
+    axis1cmd = c['axis1-cmd'];
+    if axis1cmd != axis1cmdOld:
+      axis1cmdOld = axis1cmd;
+      axis1icmd = c['axis1-cmd'] * 1000000
+      ser.write("jog Y");
+      ser.write(repr(axis1icmd))
+      ser.write(";");
+      ser.write("\n");
+
+    axis2cmd = c['axis2-cmd'];
+    if axis2cmd != axis2cmdOld:
+      axis2cmdOld = axis2cmd;
+      axis2icmd = c['axis2-cmd'] * 1000000
+      ser.write("jog Z");
+      ser.write(repr(axis2icmd))
+      ser.write(";");
+      ser.write("\n");
+
+    spindleEnable = c['spindleEnable'];
+    if spindleEnable != spindleEnableOld:
+      spindleEnableOld = spindleEnable;
+      if spindleEnable == 1:
+        ser.write("+S;");
+      else:
+        ser.write("-S;");
+
+    spindleDirection = c['spindleDirection'];
+    if spindleDirection != spindleDirectionOld:
+      spindleDirectionOld = spindleDirection;
+      if spindleDirection == 1:
+        ser.write("+D;");
+      else:
+        ser.write("-D;");
+
+
+
+    coolantMist = c['coolantMist'];
+    if coolantMist != coolantMistOld:
+      coolantMistOld = coolantMist;
+      if coolantMist == 1:
+        ser.write("+M;");
+      else:
+        ser.write("-M;");
+
+    coolantFlood = c['coolantFlood'];
+    if coolantFlood != coolantFloodOld:
+      coolantFloodOld = coolantFlood;
+      if coolantFlood == 1:
+        ser.write("+F;");
+      else:
+        ser.write("-F;");
+
+    #Check the machine State
+    if(machineState != c['machine-state']):
+      if(c['machine-state'] == 1):
+        #The machine is on, so turn on the power LED
+        ser.write("+P;")
+      else:
+        #opposite of above
+        ser.write("-P;")
+      #update the machine state variable
+      machineState = c['machine-state']
+
+    #Check the machine State
+    if(eStopState != c['eStop']):
+      if(c['eStop'] == 1):
+        #The machine is on, so turn on the power LED
+        ser.write("+E;")
+      else:
+        #opposite of above
+        ser.write("-E;")
+      #update the machine state variable
+      eStopState = c['eStop']
+    
+    #check if the machine is homed.
+    if(is0homed != c['is0homed']):
+	if(c['is0homed'] == 1):
+		ser.write("+0;")
+	else:
+		ser.write("-0;")
+	is0homed = c['is0homed']
+
+    if(is1homed != c['is1homed']):
+	if(c['is1homed'] == 1):
+		ser.write("+1;")
+	else:
+		ser.write("-1;")
+	is1homed = c['is1homed']
+
+    if(is2homed != c['is2homed']):
+	if(c['is2homed'] == 1):
+		ser.write("+2;")
+	else:
+		ser.write("-2;")
+	is2homed = c['is2homed']
+
+    if(runState != c['runState']):
+	if(c['runState'] == 1):
+		ser.write("+r;")
+	else:
+		ser.write("-r;")
+	runState = c['runState']
+
+    if(stopState != c['stopState']):
+	if(c['stopState'] == 1):
+		ser.write("+s;")
+	else:
+		ser.write("-s;")
+	stopState = c['stopState']
+
+    if(pauseState != c['pauseState']):
+	if(c['pauseState'] == 1):
+		ser.write("+p;")
+	else:
+		ser.write("-p;")
+	runState = c['pauseState']
+
+
+      #Check to see if we have a message waiting from the Arduino
+    while ser.inWaiting():
+      #This should be set to the length of whatever fixed-length message
+      #you're sending from the arduino. It does not have to be the same length
+      #as the outbound messages.
+      key = ser.read(2)
+      #The Arduino generates two different key events
+      #One when the key is pressed down (+S) and another when it is released (-S)
+      #In this case we are going to ignore the release
+
+      # The current feedback from the steppers.
+      # test code.
+      # first, send a fb (feedback) code.
+      # Second, read from the string until a ; is found.
+      # third, split the string into x/y/z values.
+      # fourth, set the axisN-fb variable to the float
+      if(key == "fb"):
+	c['axis0-fb'] = 1
+
+# Set min limit triggers
+      if(key == "x0"):
+        c['xMinLmt'] = 1
+      if(key == "y0"):
+        c['yMinLmt'] = 1
+      if(key == "z0"):
+        c['zMinLmt'] = 1
+
+
+# Clear limit triggers
+      if(key == "x1"):
+        c['xMinLmt'] = 0
+        c['xMaxLmt'] = 0
+      if(key == "y1"):
+        c['yMinLmt'] = 0
+        c['yMaxLmt'] = 0
+      if(key == "z1"):
+        c['zMinLmt'] = 0
+        c['zMaxLmt'] = 0
+
+
+# Set max limit triggers
+      if(key == "x2"):
+        c['xMaxLmt'] = 1
+      if(key == "y2"):
+        c['yMaxLmt'] = 1
+      if(key == "z2"):
+        c['zMaxLmt'] = 1
+ 
+
+# set home switches
+      if(key == "x4"):
+        c['xHome'] = 0
+      if(key == "y4"):
+        c['yHome'] = 0
+      if(key == "z4"):
+        c['zHome'] = 0
+
+
+# unset home switches
+      if(key == "x5"):
+        c['xHome'] = 1
+      if(key == "y5"):
+        c['yHome'] = 1
+      if(key == "z5"):
+        c['zHome'] = 1
+
+
+#power
+      if(key == "p0"):
+        c['switch-on'] = 0
+        c['switch-off'] = 1
+      if(key == "p1"):
+        c['switch-on'] = 1
+        c['switch-off'] = 0
+      if(key == "pt"):
+        #If the machine is currently on, we turn it off, and vice-versa
+        if(machineState == 1):
+          c['switch-on'] = 1
+          c['switch-off'] = 0
+        else:
+          c['switch-on'] = 0
+          c['switch-off'] = 1
+
+#eStop
+      if(key == "e0"):
+        c['eStop'] = 1
+      if(key == "e1"):
+        c['eStop'] = 0
+
+#probe
+      if(key == "P0"):
+        c['probe'] = 1
+      if(key == "P1"):
+        c['probe'] = 0
+
+#program start
+      if(key == "h0"):
+        c['start'] = 0
+      if(key == "h1"):
+        c['start'] = 1
+
+#program stop
+      if(key == "h2"):
+        c['stop'] = 0
+      if(key == "h3"):
+        c['stop'] = 1
+
+#program pause
+      if(key == "h4"):
+        c['pause'] = 1
+      if(key == "h5"):
+        c['pause'] = 0
+
+#program resume
+      if(key == "h6"):
+        c['resume'] = 1
+      if(key == "h7"):
+        c['resume'] = 0
+
+#program step
+      if(key == "h8"):
+        c['step'] = 1
+      if(key == "h9"):
+        c['step'] = 0
+
+#spindle at speed signal
+      if(key == "S1"):
+        c['spindleAtSpeed'] = 1
+      if(key == "S0"):
+        c['spindleAtSpeed'] = 0
+
+except KeyboardInterrupt:
+    ser.write("-P;");
+    raise SystemExit
+
