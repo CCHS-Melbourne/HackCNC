@@ -1,0 +1,26 @@
+These are the pinouts for the Freetronics CNCPlotter board developed by Luke Weston.
+This board is built around an Arduino Leonardo chip.
+By default, the board is set to 8x microstepping.  This can be changed by soldering headers on the 3 pads for each driver board.
+The CNCPlotter board only has two stepper drivers, with a servo for it's third axis.  An additional driver board can be connected to D5 and D13.
+
+D0: UART RXD (not used, broken out to spare header)
+D1: UART TXD (not used, broken out to spare header)
+D2: LCD Strobe (Data loaded serially from AVR into 8-bit latch. Same as Pebble LCD hardware.)
+D3: LCD Data
+D4: LCD Clock
+D5: Z-axis direction (not used in most cases)
+D6: SD Card SPI chip select (active low). Standard SPI hardware (MOSI, MISO, SCK) used for SPI communications with SD card.
+D7: Z-axis limit switch input (not used in most cases)
+D8: Y-axis step signal
+D9: Y-axis direction signal
+D10: X-axis step signal
+D11: X-axis direction signal
+D12: Servo motor PWM position signal
+D13: Z-axis step signal (not used usually)
+
+A0: Touchscreen 1
+A1: Touchscreen 2
+A2: Touchscreen 3
+A3: Touchscreen 4
+A4: Y-axis limit switch input
+A5: X-axis limit switch input
