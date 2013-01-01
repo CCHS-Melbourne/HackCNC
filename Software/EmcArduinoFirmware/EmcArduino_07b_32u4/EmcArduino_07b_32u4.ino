@@ -70,16 +70,24 @@ byte pos;
 //Pitch = mm/turn = 1.25 mm/turn
 //mm/inch = 25.4
 //turns/inch = 25.4/1.25 = 20.32
+//turns/mm = 0.8
 //steps/turn = 200
 //fullsteps/inch = 200*20.32 = 4064
-//microstepping, so 8 microsteps/step * 4064 = 32512 steps per in.
+//fullsteps/mm = 200*0.8 = 160
+//microstepping inch. 8 microsteps/step * 4064 = 32512 steps per in.
+//microstepping mm. 8 microsteps/step * 160 = 1280 steps per mm.
 //not using stepmode() due to unfavorable comment about it.
 
 
 #define stepsPerInchX 32512
 #define stepsPerInchY 32512
+
+#define stepsPerMmX 1280
+#define stepsPerMmY 1280
+
 //set very low because it's essentially digital, cutting down on z commands.
 #define stepsPerInchZ 1
+#define stepsPerMmZ 1
 
 //#define minStepTime 25 //delay in MICROseconds between step pulses.
 //#define minStepTime 625
@@ -204,9 +212,10 @@ byte pos;
 
 // Where should the VIRTUAL Min switches be set to (ignored if using real switches).
 // Set to whatever you specified in the StepConf wizard.
-#define xMin -5.1
-#define yMin -5.1
-#define zMin -5.1
+// it's a bit dangerous to go negative here for x and y
+#define xMin 0
+#define yMin 0
+#define zMin -10
 
 // Where should the VIRTUAL home switches be set to (ignored if using real switches).
 // Set to whatever you specified in the StepConf wizard.
@@ -216,9 +225,10 @@ byte pos;
 
 // Where should the VIRTUAL Max switches be set to (ignored if using real switches).
 // Set to whatever you specified in the StepConf wizard.
-#define xMax 15.1
-#define yMax 15.1
-#define zMax 15.1
+// updated for mm
+#define xMax 400
+#define yMax 300
+#define zMax 20
 
 #define giveFeedBackX false
 #define giveFeedBackY false
@@ -382,9 +392,9 @@ void jog(float x, float y, float z)
   if(yMaxState != yMaxStateOld){yMaxStateOld=yMaxState;Serial.print("y");Serial.print(yMaxState+1);}
   if(zMaxState != zMaxStateOld){zMaxStateOld=zMaxState;Serial.print("z");Serial.print(zMaxState+1);}
 
-  if(xMinState && !xMaxState)stepper0Goto=pos_x*stepsPerInchX*2;
-  if(yMinState && !yMaxState)stepper1Goto=pos_y*stepsPerInchY*2;
-  if(zMinState && !zMaxState)stepper2Goto=pos_z*stepsPerInchZ*2; // we need the *2 as we're driving a flip-flop routine (in stepLight function)
+  if(xMinState && !xMaxState)stepper0Goto=pos_x*stepsPerMmX*2;
+  if(yMinState && !yMaxState)stepper1Goto=pos_y*stepsPerMmY*2;
+  if(zMinState && !zMaxState)stepper2Goto=pos_z*stepsPerMmZ*2; // we need the *2 as we're driving a flip-flop routine (in stepLight function)
 
 }
 
@@ -484,7 +494,7 @@ void stepLight() // Set by jog() && Used by loop()
       // this transmits we're not ready to finish.
       // but isn't used upstream in the HAL
       if(giveFeedBackX){
-        fbx=stepper0Pos/4/(stepsPerInchX*0.5);
+        fbx=stepper0Pos/4/(stepsPerMmX*0.5);
         
         // We never get to this!
         if(!busy){
@@ -495,7 +505,7 @@ void stepLight() // Set by jog() && Used by loop()
           }
         }
       }
-      if(giveFeedBackY){fby=stepper1Pos/4/(stepsPerInchY*0.5);if(!busy){if(fby!=fbyOld){fbyOld=fby;Serial.print("fy");Serial.println(fby,6);}}}
+      if(giveFeedBackY){fby=stepper1Pos/4/(stepsPerMmY*0.5);if(!busy){if(fby!=fbyOld){fbyOld=fby;Serial.print("fy");Serial.println(fby,6);}}}
       // if(giveFeedBackZ){fbz=stepper2Pos/4/(stepsPerInchZ*0.5);if(!busy){if(fbz!=fbzOld){fbzOld=fbz;Serial.print("fz");Serial.println(fbz,6);}}}
 
     }
@@ -504,49 +514,6 @@ void stepLight() // Set by jog() && Used by loop()
   }
 }
 
-/*
-void stepMode(int axis, int mode) // May be omitted in the future. (Undecided)
-{
-  // called just once during setup()
-  
-  // This works OPPOSITE of what you might think.
-  // Mode 1 = 1/16 step.
-  // Mode 2 = 1/8 step.
-  // Mode 4 = 1/4 step.
-  // Mode 8 = 1/2 step.
-  // Mode 16 = Full step.
-  // Its simular to a car's gearbox with gears from low to high as in 1,2,4,8,16
-
-  // Originally intended for dynamic microstepping control to reduce mpu overhead and speed steppers when moving large distances.
-  // Real world result: Increased overhead and slowed steppers while juggling unessessary math and pin commands.
-  
-  boolean ms1;
-  boolean ms2;
-  boolean ms3;
-  int count;
-  if(mode>=16){ms1=LOW;ms2=LOW;ms3=LOW;count=16;}
-  if(mode>=8 && mode<=15){ms1=HIGH;ms2=LOW;ms3=LOW;count=8;}
-  if(mode>=4 && mode<=7){ms1=LOW;ms2=HIGH;ms3=LOW;count=4;}
-  if(mode>=2 && mode<=3){ms1=HIGH;ms2=HIGH;ms3=LOW;count=2;}
-  if(mode<=1){ms1=HIGH;ms2=HIGH;ms3=HIGH;count=1;}
-  if(axis == 0 || 9){if(mode!=stepModeX){digitalWriteFast(chanXms1,ms1);digitalWriteFast(chanXms2,ms2);digitalWriteFast(chanXms3,ms3);stepModeX=count;}}
-  if(axis == 1 || 9){if(mode!=stepModeY){digitalWriteFast(chanYms1,ms1);digitalWriteFast(chanYms2,ms2);digitalWriteFast(chanYms3,ms3);stepModeY=count;}}
-  if(axis == 2 || 9){if(mode!=stepModeZ){digitalWriteFast(chanZms1,ms1);digitalWriteFast(chanZms2,ms2);digitalWriteFast(chanZms3,ms3);stepModeZ=count;}}
-
-}
-*/
-/*
-int determinInterrupt(int val)
-{
-  if(val<0) return -1;
-  if(val==2) return 0;
-  if(val==3) return 1;
-  if(val==18) return 5;
-  if(val==19) return 4;
-  if(val==20) return 3;
-  if(val==21) return 2;
-}
-*/
 
 /*
 volatile unsigned long spindleRevs=0;
@@ -857,8 +824,6 @@ void loop()
   if(!globalBusy){boolean spindleAtSpeedState=spindleAtSpeed();if(spindleAtSpeedState != spindleAtSpeedStateOld){spindleAtSpeedStateOld=spindleAtSpeedState;Serial.print("S");Serial.println(spindleAtSpeedState);}}
 */
 
-  //lcd.setCursor (0, 2);
-  //lcd.print(globalBusy);
 
   stepLight(); // call every loop cycle to update stepper motion.
 }
