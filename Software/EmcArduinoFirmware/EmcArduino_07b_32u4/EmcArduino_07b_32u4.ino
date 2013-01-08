@@ -75,7 +75,7 @@ byte pos;
 //fullsteps/inch = 200*20.32 = 4064
 //fullsteps/mm = 200*0.8 = 160
 //microstepping inch. 8 microsteps/step * 4064 = 32512 steps per in.
-//microstepping mm. 8 microsteps/step * 160 = 1280 steps per mm.
+//microstepping mm. 8 microsteps/step / 0.8 = 1280 steps per mm.
 //not using stepmode() due to unfavorable comment about it.
 
 
@@ -351,8 +351,8 @@ float fbzOld=0;
 // mainly used for the LCD
 char runState='o'; // Off, Stopped, Running, Paused.
 
-// update the LCD every X iterations
-int updateInterval = 0;
+// Last update of the LCD panel.
+unsigned long lastUpdate;
 
 
 //void jog(float x, float y, float z, float a, float b, float c, float u, float v, float w)
@@ -509,6 +509,8 @@ void stepLight() // Set by jog() && Used by loop()
       // if(giveFeedBackZ){fbz=stepper2Pos/4/(stepsPerInchZ*0.5);if(!busy){if(fbz!=fbzOld){fbzOld=fbz;Serial.print("fz");Serial.println(fbz,6);}}}
 
     }
+    
+    
     
     stepTimeOld=curTime;
   }
@@ -772,14 +774,6 @@ void loop()
  
     buffer[sofar]=0;
     
-    // output the command
-    //Serial.println(buffer);
-    // this stuff seems to really slow down the processing.
-    //lcd.setCursor (0, 2); // could have sworn this should be 0,1
-    //lcd.print(F("                                                            ")); // three lines of spaces
-    //lcd.setCursor (0, 2);
-    //lcd.print(buffer);
- 
     // do something with the command
     processCommand();
  
@@ -787,37 +781,28 @@ void loop()
     sofar=0;
   }
   
-  // bit of ugly test code
-  
-  //float test2 = pos_x * 10;
-  int test = (int) (pos_x*10) ;
-  
-  lcd.setCursor (0, 2);
-  lcd.print((float)test);
-  lcd.print(F("/"));
-  lcd.print(pos_x*10);
-  
   // globalBusy is all well and good, but if the machine is working it will never update.
   // We have to find a good balance between performance and update cycle
-  //if(powerState && globalBusy<15)
-  //if(powerState && updateInterval>=30000)
-  if(powerState && ((float)test) == (pos_x*10))
+  // Split this up due to some weirdness using all three values
+  if(powerState)
   {
-    // Insert LCD call here. (Updated when mostly idle.) Future project.
-    lcd.setCursor (0, 3);
-    lcd.print(F("X:"));
-    lcd.print(pos_x);
-    lcd.setCursor (7, 3);
-    lcd.print(F("Y:"));
-    lcd.print(pos_y);
-    lcd.setCursor (14, 3);
-    lcd.print(F("Z:"));
-    lcd.print(pos_y);
-    
-    //updateInterval=0;
+    // update every second (1000).  Adjust this value
+    if (lastUpdate < (millis() - 1000) || globalBusy<15 )
+    {
+      // Insert LCD call here. (Updated when mostly idle.) Future project.
+      lcd.setCursor (0, 3);
+      lcd.print(F("X:"));
+      lcd.print(pos_x);
+      lcd.setCursor (7, 3);
+      lcd.print(F("Y:"));
+      lcd.print(pos_y);
+      lcd.setCursor (14, 3);
+      lcd.print(F("Z:"));
+      lcd.print(pos_y);
+      
+      lastUpdate = millis();
+    }
   }
-  
-  //updateInterval++;
   
 /*
   updateSpindleRevs();
