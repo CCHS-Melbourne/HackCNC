@@ -353,166 +353,38 @@ void jog(float x, float y, float z)
   pos_y=y;
   pos_z=z;
 
-
   // Handle our limit switches.
   // Compressed to save visual space. Otherwise it would be several pages long!
 
   // only check the limit switches if it's not homed
   // We want to mark as true if either pos or homed are true, not both
   //if(!useRealMinX){if(pos_x > xMin || ( pos_x <= xMin && !xHomed)){xMinState=true;}else{xMinState=false;}}else{xMinState=digitalReadFast(xMinPin);if(xMinPinInverted)xMinState=!xMinState;}
-  if(!useRealMinX){
-    xMinState=true;
-    if(pos_x <= xMin && !xHomed){
-      xMinState=false;
-    }
-  }
-  else{
-    xMinState=digitalReadFast(xMinPin);
-    if(xMinPinInverted)xMinState=!xMinState;
-  }
-  if(!useRealMinY){
-    xMinState=true;
-    if(pos_y <= yMin && !yHomed){
-      yMinState=false;
-    }
-  }
-  else{
-    yMinState=digitalReadFast(yMinPin);
-    if(yMinPinInverted)yMinState=!yMinState;
-  }
-  if(!useRealMinZ){
-    zMinState=true;
-    if(pos_z <= zMin && !zHomed){
-      zMinState=false;
-    }
-  }
-  else{
-    zMinState=digitalReadFast(zMinPin);
-    if(zMinPinInverted)zMinState=!zMinState;
-  }
+  if(!useRealMinX){xMinState=true;if(pos_x <= xMin && !xHomed){xMinState=false;}}else{xMinState=digitalReadFast(xMinPin);if(xMinPinInverted)xMinState=!xMinState;}
+  if(!useRealMinY){xMinState=true;if(pos_y <= yMin && !yHomed){yMinState=false;}}else{yMinState=digitalReadFast(yMinPin);if(yMinPinInverted)yMinState=!yMinState;}
+  if(!useRealMinZ){zMinState=true;if(pos_z <= zMin && !zHomed){zMinState=false;}}else{zMinState=digitalReadFast(zMinPin);if(zMinPinInverted)zMinState=!zMinState;}
 
+  // don't really need the homed question here, because if the machine is unhomed there will be physical limits as to how much it can move
+  if(!useRealMaxX){if(pos_x > xMax){xMaxState=true;}else{xMaxState=false;}}else{xMaxState=digitalReadFast(xMaxPin);if(xMaxPinInverted)xMaxState=!xMaxState;}
+  if(!useRealMaxY){if(pos_y > yMax){yMaxState=true;}else{yMaxState=false;}}else{yMaxState=digitalReadFast(yMaxPin);if(yMaxPinInverted)yMaxState=!yMaxState;}
+  if(!useRealMaxZ){if(pos_z > zMax){zMaxState=true;}else{zMaxState=false;}}else{zMaxState=digitalReadFast(zMaxPin);if(zMaxPinInverted)zMaxState=!zMaxState;}
 
-  if(!useRealMaxX){
-    if(pos_x > xMax){
-      xMaxState=true;
-    }
-    else{
-      xMaxState=false;
-    }
-  }
-  else{
-    xMaxState=digitalReadFast(xMaxPin);
-    if(xMaxPinInverted)xMaxState=!xMaxState;
-  }
-  if(!useRealMaxY){
-    if(pos_y > yMax){
-      yMaxState=true;
-    }
-    else{
-      yMaxState=false;
-    }
-  }
-  else{
-    yMaxState=digitalReadFast(yMaxPin);
-    if(yMaxPinInverted)yMaxState=!yMaxState;
-  }
-  if(!useRealMaxZ){
-    if(pos_z > zMax){
-      zMaxState=true;
-    }
-    else{
-      zMaxState=false;
-    }
-  }
-  else{
-    zMaxState=digitalReadFast(zMaxPin);
-    if(zMaxPinInverted)zMaxState=!zMaxState;
-  }
+  // These are only used to send a serial character if the machine is homed.
+  // I can't see how they'd work at all with virtual home switches.
+  if(!useRealHomeX){if(pos_x > xHome){xHomeState=true;}else{xHomeState=false;}}else{xHomeState=digitalReadFast(xHomePin);if(xHomePinInverted)xHomeState=!xHomeState;}
+  if(!useRealHomeY){if(pos_y > yHome){yHomeState=true;}else{yHomeState=false;}}else{yHomeState=digitalReadFast(yHomePin);if(yHomePinInverted)yHomeState=!yHomeState;}
+  if(!useRealHomeZ){if(pos_z > zHome){zHomeState=true;}else{zHomeState=false;}}else{zHomeState=digitalReadFast(zHomePin);if(zHomePinInverted)zHomeState=!zHomeState;}
 
-  if(!useRealHomeX){
-    if(pos_x > xHome){
-      xHomeState=true;
-    }
-    else{
-      xHomeState=false;
-    }
-  }
-  else{
-    xHomeState=digitalReadFast(xHomePin);
-    if(xHomePinInverted)xHomeState=!xHomeState;
-  }
-  if(!useRealHomeY){
-    if(pos_y > yHome){
-      yHomeState=true;
-    }
-    else{
-      yHomeState=false;
-    }
-  }
-  else{
-    yHomeState=digitalReadFast(yHomePin);
-    if(yHomePinInverted)yHomeState=!yHomeState;
-  }
-  if(!useRealHomeZ){
-    if(pos_z > zHome){
-      zHomeState=true;
-    }
-    else{
-      zHomeState=false;
-    }
-  }
-  else{
-    zHomeState=digitalReadFast(zHomePin);
-    if(zHomePinInverted)zHomeState=!zHomeState;
-  }
+  if(xMinState != xMinStateOld){xMinStateOld=xMinState;Serial.print("x");Serial.print(xMinState);}
+  if(yMinState != yMinStateOld){yMinStateOld=yMinState;Serial.print("y");Serial.print(yMinState);}
+  if(zMinState != zMinStateOld){zMinStateOld=zMinState;Serial.print("z");Serial.print(zMinState);}
 
-  if(xMinState != xMinStateOld){
-    xMinStateOld=xMinState;
-    Serial.print("x");
-    Serial.print(xMinState);
-  }
-  if(yMinState != yMinStateOld){
-    yMinStateOld=yMinState;
-    Serial.print("y");
-    Serial.print(yMinState);
-  }
-  if(zMinState != zMinStateOld){
-    zMinStateOld=zMinState;
-    Serial.print("z");
-    Serial.print(zMinState);
-  }
+  if(xHomeState != xHomeStateOld){xHomeStateOld=xHomeState;Serial.print("x");Serial.print(xHomeState+4);}
+  if(yHomeState != yHomeStateOld){yHomeStateOld=yHomeState;Serial.print("y");Serial.print(yHomeState+4);}
+  if(zHomeState != zHomeStateOld){zHomeStateOld=zHomeState;Serial.print("z");Serial.print(zHomeState+4);}
 
-  if(xHomeState != xHomeStateOld){
-    xHomeStateOld=xHomeState;
-    Serial.print("x");
-    Serial.print(xHomeState+4);
-  }
-  if(yHomeState != yHomeStateOld){
-    yHomeStateOld=yHomeState;
-    Serial.print("y");
-    Serial.print(yHomeState+4);
-  }
-  if(zHomeState != zHomeStateOld){
-    zHomeStateOld=zHomeState;
-    Serial.print("z");
-    Serial.print(zHomeState+4);
-  }
-
-  if(xMaxState != xMaxStateOld){
-    xMaxStateOld=xMaxState;
-    Serial.print("x");
-    Serial.print(xMaxState+1);
-  }
-  if(yMaxState != yMaxStateOld){
-    yMaxStateOld=yMaxState;
-    Serial.print("y");
-    Serial.print(yMaxState+1);
-  }
-  if(zMaxState != zMaxStateOld){
-    zMaxStateOld=zMaxState;
-    Serial.print("z");
-    Serial.print(zMaxState+1);
-  }
+  if(xMaxState != xMaxStateOld){xMaxStateOld=xMaxState;Serial.print("x");Serial.print(xMaxState+1);}
+  if(yMaxState != yMaxStateOld){yMaxStateOld=yMaxState;Serial.print("y");Serial.print(yMaxState+1);}
+  if(zMaxState != zMaxStateOld){zMaxStateOld=zMaxState;Serial.print("z");Serial.print(zMaxState+1);}
 
   if(xMinState && !xMaxState)stepper0Goto=pos_x*stepsPerMmX*2;
   if(yMinState && !yMaxState)stepper1Goto=pos_y*stepsPerMmY*2;
@@ -525,36 +397,20 @@ void processCommand()
   float xx=pos_x;
   float yy=pos_y;
   float zz=pos_z;
-  //  float ss=revs_in;
 
   char *ptr=buffer;
   while(ptr && ptr<buffer+sofar)
   {
     ptr=strchr(ptr,' ')+1;
     switch(*ptr) {
-
+      
       // These are axis move commands
-    case 'x': 
-    case 'X': 
-      xx=atof(ptr+1); 
-      xx=xx/divisor; 
-      break;
-    case 'y': 
-    case 'Y': 
-      yy=atof(ptr+1); 
-      yy=yy/divisor; 
-      break;
-    case 'z': 
-    case 'Z': 
-      zz=atof(ptr+1); 
-      zz=zz/divisor; 
-      move_servo(zz); 
-      break;
+      case 'x': case 'X': xx=atof(ptr+1); xx=xx/divisor; break;
+      case 'y': case 'Y': yy=atof(ptr+1); yy=yy/divisor; break;
+      case 'z': case 'Z': zz=atof(ptr+1); zz=zz/divisor; move_servo(zz); break;
       //      case 'z': case 'Z': zz=atof(ptr+1); break;
 
-    default: 
-      ptr=0; 
-      break;
+      default: ptr=0; break;
     }
   }
 
@@ -606,19 +462,7 @@ void stepLight() // Set by jog() && Used by loop()
       }
     }
 
-    if(stepper1Pos != stepper1Goto){
-      busy++;
-      if(stepper1Pos > stepper1Goto){
-        digitalWriteFast(dirPin1,!dirState1);
-        digitalWriteFast(stepPin1,stepState);
-        stepper1Pos--;
-      }
-      else{
-        digitalWriteFast(dirPin1, dirState1);
-        digitalWriteFast(stepPin1,stepState);
-        stepper1Pos++;
-      }
-    }
+    if(stepper1Pos != stepper1Goto){busy++;if(stepper1Pos > stepper1Goto){digitalWriteFast(dirPin1,!dirState1);digitalWriteFast(stepPin1,stepState);stepper1Pos--;}else{digitalWriteFast(dirPin1, dirState1);digitalWriteFast(stepPin1,stepState);stepper1Pos++;}}
     // if(stepper2Pos != stepper2Goto){busy++;if(stepper2Pos > stepper2Goto){digitalWriteFast(dirPin2,!dirState2);digitalWriteFast(stepPin2,stepState);stepper2Pos--;}else{digitalWriteFast(dirPin2, dirState2);digitalWriteFast(stepPin2,stepState);stepper2Pos++;}}
 
 
@@ -652,16 +496,7 @@ void stepLight() // Set by jog() && Used by loop()
           }
         }
       }
-      if(giveFeedBackY){
-        fby=stepper1Pos/4/(stepsPerMmY*0.5);
-        if(!busy){
-          if(fby!=fbyOld){
-            fbyOld=fby;
-            Serial.print("fy");
-            Serial.println(fby,6);
-          }
-        }
-      }
+      if(giveFeedBackY){fby=stepper1Pos/4/(stepsPerMmY*0.5);if(!busy){if(fby!=fbyOld){fbyOld=fby;Serial.print("fy");Serial.println(fby,6);}}}
       // if(giveFeedBackZ){fbz=stepper2Pos/4/(stepsPerInchZ*0.5);if(!busy){if(fbz!=fbzOld){fbzOld=fbz;Serial.print("fz");Serial.println(fbz,6);}}}
 
     }
@@ -683,46 +518,21 @@ void setup()
   lcd.print(F("hackCNC             "));
 
   // Setup Min limit switches.
-  if(useRealMinX){
-    pinMode(xMinPin,INPUT);
-    if(!xMinPinInverted)digitalWriteFast(xMinPin,HIGH);
-  }
-  if(useRealMinY){
-    pinMode(yMinPin,INPUT);
-    if(!yMinPinInverted)digitalWriteFast(yMinPin,HIGH);
-  }
-  if(useRealMinZ){
-    pinMode(zMinPin,INPUT);
-    if(!zMinPinInverted)digitalWriteFast(zMinPin,HIGH);
-  }
+  if(useRealMinX){pinMode(xMinPin,INPUT);if(!xMinPinInverted)digitalWriteFast(xMinPin,HIGH);}
+  if(useRealMinY){pinMode(yMinPin,INPUT);if(!yMinPinInverted)digitalWriteFast(yMinPin,HIGH);}
+  if(useRealMinZ){pinMode(zMinPin,INPUT);if(!zMinPinInverted)digitalWriteFast(zMinPin,HIGH);}
 
   // Setup Max limit switches.
-  if(useRealMaxX){
-    pinMode(xMaxPin,INPUT);
-    if(!xMaxPinInverted)digitalWriteFast(xMaxPin,HIGH);
-  }
-  if(useRealMaxY){
-    pinMode(yMaxPin,INPUT);
-    if(!yMaxPinInverted)digitalWriteFast(yMaxPin,HIGH);
-  }
-  if(useRealMaxZ){
-    pinMode(zMaxPin,INPUT);
-    if(!zMaxPinInverted)digitalWriteFast(zMaxPin,HIGH);
-  }
+  if(useRealMaxX){pinMode(xMaxPin,INPUT);if(!xMaxPinInverted)digitalWriteFast(xMaxPin,HIGH);}
+  if(useRealMaxY){pinMode(yMaxPin,INPUT);if(!yMaxPinInverted)digitalWriteFast(yMaxPin,HIGH);}
+  if(useRealMaxZ){pinMode(zMaxPin,INPUT);if(!zMaxPinInverted)digitalWriteFast(zMaxPin,HIGH);}
+
 
   // Setup Homing switches.
-  if(useRealHomeX){
-    pinMode(xHomePin,INPUT);
-    if(!xHomePinInverted)digitalWriteFast(xHomePin,HIGH);
-  }
-  if(useRealHomeY){
-    pinMode(yHomePin,INPUT);
-    if(!yHomePinInverted)digitalWriteFast(yHomePin,HIGH);
-  }
-  if(useRealHomeZ){
-    pinMode(zHomePin,INPUT);
-    if(!zHomePinInverted)digitalWriteFast(zHomePin,HIGH);
-  }
+  if(useRealHomeX){pinMode(xHomePin,INPUT);if(!xHomePinInverted)digitalWriteFast(xHomePin,HIGH);}
+  if(useRealHomeY){pinMode(yHomePin,INPUT);if(!yHomePinInverted)digitalWriteFast(yHomePin,HIGH);}
+  if(useRealHomeZ){pinMode(zHomePin,INPUT);if(!zHomePinInverted)digitalWriteFast(zHomePin,HIGH);}
+
 
   // Setup step pins.
   pinMode(stepPin0,OUTPUT);
@@ -800,77 +610,24 @@ void loop()
   if(sofar>0 && buffer[sofar-3]=='+') {
 
     //if(sofar>0 && buffer[sofar-2]=='P') { /* Power LED & PSU   ON */ if(powerLedPin>0){digitalWriteFast(powerLedPin,HIGH);}if(powerSupplyPin>0){digitalWriteFast(powerSupplyPin,psuState);}}
-    if(sofar>0 && buffer[sofar-2]=='E') { 
-      eStopState=true; 
-      lcd.setCursor (0, 1); 
-      lcd.print(F("eStop Open.         "));
-      lcd.setCursor (15, 0); 
-      lcd.print(F("E"));
-    };
-    if(sofar>0 && buffer[sofar-2]=='P') { 
-      powerState=true; 
-      lcd.setCursor (0, 1); 
-      lcd.print(F("Power Initialised.  "));
-      lcd.setCursor (16, 0); 
-      lcd.print(F("P"));
-    };
+    if(sofar>0 && buffer[sofar-2]=='E') { eStopState=true; lcd.setCursor (0, 1); lcd.print(F("eStop Open.         "));lcd.setCursor (15, 0); lcd.print(F("E"));};
+    if(sofar>0 && buffer[sofar-2]=='P') { powerState=true; lcd.setCursor (0, 1); lcd.print(F("Power Initialised.  "));lcd.setCursor (16, 0); lcd.print(F("P"));};
     //if(sofar>0 && buffer[sofar-2]=='E') { /* E-Stop Indicator  ON */ if(eStopLedPin>0){digitalWriteFast(eStopLedPin,HIGH);}}
 
     // Running code state
     // These are mutually exclusive so don't need a - set.
     // On startup, don't set these.  purely to look cooler on the lcd
     // Should be a better way
-    if(sofar>0 && buffer[sofar-2]=='r') { 
-      runState = 'r'; 
-      lcd.setCursor (12, 0); 
-      lcd.print(F("R"));
-      lcd.setCursor (0, 1); 
-      lcd.print(F("Running gCode       "));
-      lcd.setCursor (0, 2);
-      lcd.print(F("Touch to PAUSE      "));
-    };
+    if(sofar>0 && buffer[sofar-2]=='r') { runState = 'r'; lcd.setCursor (12, 0); lcd.print(F("R"));lcd.setCursor (0, 1); lcd.print(F("Running gCode       "));lcd.setCursor (0, 2);lcd.print(F("Touch to PAUSE      "));};
     // extra check to make sure the machine wasn't off.
-    if(sofar>0 && buffer[sofar-2]=='s' && runState!='o' ) { 
-      runState = 's'; 
-      lcd.setCursor (12, 0); 
-      lcd.print(F("S"));
-      lcd.setCursor (0, 1); 
-      lcd.print(F("Run Stopped!        "));
-      lcd.setCursor (0, 2);
-      lcd.print(F("                    "));
-    };
-    if(sofar>0 && buffer[sofar-2]=='p') { 
-      runState = 'r'; 
-      lcd.setCursor (12, 0); 
-      lcd.print(F("P"));
-      lcd.setCursor (0, 1); 
-      lcd.print(F("Run Paused!         "));
-      lcd.setCursor (0, 2);
-      lcd.print(F("Touch to RESUME     "));
-    };
+    if(sofar>0 && buffer[sofar-2]=='s' && runState!='o' ) { runState = 's'; lcd.setCursor (12, 0); lcd.print(F("S"));lcd.setCursor (0, 1); lcd.print(F("Run Stopped!        "));lcd.setCursor (0, 2);lcd.print(F("                    "));};
+    if(sofar>0 && buffer[sofar-2]=='p') { runState = 'r'; lcd.setCursor (12, 0); lcd.print(F("P"));lcd.setCursor (0, 1); lcd.print(F("Run Paused!         "));lcd.setCursor (0, 2);lcd.print(F("Touch to RESUME     "));};
+
 
     // homing
-    if(sofar>0 && buffer[sofar-2]=='0') { 
-      xHomed=true; 
-      lcd.setCursor (0, 1); 
-      lcd.print(F("X axis Homed        "));
-      lcd.setCursor (17, 0); 
-      lcd.print(F("X"));
-    };
-    if(sofar>0 && buffer[sofar-2]=='1') { 
-      yHomed=true; 
-      lcd.setCursor (0, 1); 
-      lcd.print(F("Y axis Homed        "));
-      lcd.setCursor (18, 0); 
-      lcd.print(F("Y"));
-    };
-    if(sofar>0 && buffer[sofar-2]=='2') { 
-      zHomed=true; 
-      lcd.setCursor (0, 1); 
-      lcd.print(F("Z axis Homed        "));
-      lcd.setCursor (19, 0); 
-      lcd.print(F("Z"));
-    };
+    if(sofar>0 && buffer[sofar-2]=='0') { xHomed=true; lcd.setCursor (0, 1); lcd.print(F("X axis Homed        "));lcd.setCursor (17, 0); lcd.print(F("X"));};
+    if(sofar>0 && buffer[sofar-2]=='1') { yHomed=true; lcd.setCursor (0, 1); lcd.print(F("Y axis Homed        "));lcd.setCursor (18, 0); lcd.print(F("Y"));};
+    if(sofar>0 && buffer[sofar-2]=='2') { zHomed=true; lcd.setCursor (0, 1); lcd.print(F("Z axis Homed        "));lcd.setCursor (19, 0); lcd.print(F("Z"));};
 
     // reset the buffer
     sofar=0;  
@@ -881,43 +638,15 @@ void loop()
   // so this is mostly not needed.
   if(sofar>0 && buffer[sofar-3]=='-') {
     //if(sofar>0 && buffer[sofar-2]=='P') { /* Power LED & PSU   OFF */ if(powerLedPin>0){ digitalWriteFast(powerLedPin,LOW);}if(powerSupplyPin>0){digitalWriteFast(powerSupplyPin,!psuState);}}
-    if(sofar>0 && buffer[sofar-2]=='E') { 
-      eStopState=false; 
-      lcd.setCursor (0, 1); 
-      lcd.print(F("eStop ACTIVE! Halted"));
-      lcd.setCursor (15, 0); 
-      lcd.print(F("_"));
-    };
-    if(sofar>0 && buffer[sofar-2]=='P') { 
-      powerState=false; 
-      lcd.setCursor (0, 1); 
-      lcd.print(F("Power Down.         "));
-      lcd.setCursor (16, 0); 
-      lcd.print(F("_"));
-    };
+    if(sofar>0 && buffer[sofar-2]=='E') { eStopState=false; lcd.setCursor (0, 1); lcd.print(F("eStop ACTIVE! Halted"));lcd.setCursor (15, 0); lcd.print(F("_"));};
+    if(sofar>0 && buffer[sofar-2]=='P') { powerState=false; lcd.setCursor (0, 1); lcd.print(F("Power Down.         "));lcd.setCursor (16, 0); lcd.print(F("_"));};
+
     //if(sofar>0 && buffer[sofar-2]=='E') { /* E-Stop Indicator  OFF */ if(eStopLedPin>0){digitalWriteFast(eStopLedPin,LOW);}}
 
-    if(sofar>0 && buffer[sofar-2]=='0') { 
-      xHomed=true; 
-      lcd.setCursor (0, 1); 
-      lcd.print(F("X axis Unhomed      "));
-      lcd.setCursor (17, 0); 
-      lcd.print(F("_"));
-    };
-    if(sofar>0 && buffer[sofar-2]=='1') { 
-      yHomed=true; 
-      lcd.setCursor (0, 1); 
-      lcd.print(F("Y axis Unhomed      "));
-      lcd.setCursor (18, 0); 
-      lcd.print(F("_"));
-    };
-    if(sofar>0 && buffer[sofar-2]=='2') { 
-      zHomed=true; 
-      lcd.setCursor (0, 1); 
-      lcd.print(F("Z axis Unhomed      "));
-      lcd.setCursor (19, 0); 
-      lcd.print(F("_"));
-    };
+    if(sofar>0 && buffer[sofar-2]=='0') { xHomed=true; lcd.setCursor (0, 1); lcd.print(F("X axis Unhomed      "));lcd.setCursor (17, 0); lcd.print(F("_"));};
+    if(sofar>0 && buffer[sofar-2]=='1') { yHomed=true; lcd.setCursor (0, 1); lcd.print(F("Y axis Unhomed      "));lcd.setCursor (18, 0); lcd.print(F("_"));};
+    if(sofar>0 && buffer[sofar-2]=='2') { zHomed=true; lcd.setCursor (0, 1); lcd.print(F("Z axis Unhomed      "));lcd.setCursor (19, 0); lcd.print(F("_"));};
+
 
     // clear the buffer.
     // this means we'll skip the processCommand step
