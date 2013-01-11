@@ -370,10 +370,11 @@ void jog(float x, float y, float z)
     // Compressed to save visual space. Otherwise it would be several pages long!
 
   // only check the limit switches if it's not homed
-  // xor!
-  if(!useRealMinX){if(pos_x > xMin || !xHomed){xMinState=true;}else{xMinState=false;}}else{xMinState=digitalReadFast(xMinPin);if(xMinPinInverted)xMinState=!xMinState;}
-  if(!useRealMinY){if(pos_y > yMin || !yHomed){yMinState=true;}else{yMinState=false;}}else{yMinState=digitalReadFast(yMinPin);if(yMinPinInverted)yMinState=!yMinState;}
-  if(!useRealMinZ){if(pos_z > zMin || !zHomed){zMinState=true;}else{zMinState=false;}}else{zMinState=digitalReadFast(zMinPin);if(zMinPinInverted)zMinState=!zMinState;}
+  // We want to mark as true if either pos or homed are true, not both
+  //if(!useRealMinX){if(pos_x > xMin || ( pos_x <= xMin && !xHomed)){xMinState=true;}else{xMinState=false;}}else{xMinState=digitalReadFast(xMinPin);if(xMinPinInverted)xMinState=!xMinState;}
+  if(!useRealMinX){xMinState=true;if(pos_x <= xMin && !xHomed){xMinState=false;}}else{xMinState=digitalReadFast(xMinPin);if(xMinPinInverted)xMinState=!xMinState;}
+  if(!useRealMinY){xMinState=true;if(pos_y <= yMin && !yHomed){yMinState=false;}}else{yMinState=digitalReadFast(yMinPin);if(yMinPinInverted)yMinState=!yMinState;}
+  if(!useRealMinZ){zMinState=true;if(pos_z <= zMin && !zHomed){zMinState=false;}}else{zMinState=digitalReadFast(zMinPin);if(zMinPinInverted)zMinState=!zMinState;}
 
 
   if(!useRealMaxX){if(pos_x > xMax){xMaxState=true;}else{xMaxState=false;}}else{xMaxState=digitalReadFast(xMaxPin);if(xMaxPinInverted)xMaxState=!xMaxState;}
