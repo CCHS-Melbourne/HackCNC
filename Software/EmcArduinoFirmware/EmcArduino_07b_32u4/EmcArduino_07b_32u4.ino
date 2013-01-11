@@ -235,10 +235,10 @@ byte pos;
  To test: Issue a G0 in the GUI command to send all axies to near min limits then to near max limits.
  Watch the indicator led as you do this. Adjust "Max Velocity" setting to suit.
  
- MOSTLY ON  = You can safely go faster.
- FREQUENT BLINK = This is a safe speed. The best choice.
- OCCASIONAL BLINK = Your a speed demon. Pushing it to the limits.
- OFF COMPLETELY = Pushing it too hard. Slow down! The Arduino can't cope, your CNC will break bits and make garbage.
+ MOSTLY ON  = Pushing it too hard. Slow down! The Arduino can't cope, your CNC will break bits and make garbage.
+ FREQUENT BLINK = Your a speed demon. Pushing it to the limits.
+ OCCASIONAL BLINK = This is a safe speed. The best choice.
+ OFF COMPLETELY = You can safely go faster.
  
  */
 #define idleIndicator 13
@@ -260,12 +260,8 @@ float pos_x;
 float pos_y;
 float pos_z;
 
-//float revs_in=0;
-//float spindleRPSin=0;
-
 boolean stepState=LOW;
 unsigned long stepTimeOld=0;
-unsigned long spindleTimeOld=0;
 long stepper0Pos=0;
 long stepper0Goto=0;
 long stepper1Pos=0;
@@ -468,8 +464,10 @@ void stepLight() // Set by jog() && Used by loop()
 
 
     // we have a busy value, so we're still moving.
+    // This is meant to flash an LED when it's busy
+    
     if(busy){
-      digitalWriteFast(idleIndicator,LOW);
+      digitalWriteFast(idleIndicator,HIGH);
       // increment to say we're still busy.
       if(globalBusy<255){
         globalBusy++;
@@ -477,7 +475,7 @@ void stepLight() // Set by jog() && Used by loop()
     }
     else{
       // not busy, time to do some feedback
-      digitalWriteFast(idleIndicator,HIGH);
+      digitalWriteFast(idleIndicator,LOW);
       if(globalBusy>0){
         globalBusy--;
       }
@@ -487,7 +485,7 @@ void stepLight() // Set by jog() && Used by loop()
       if(giveFeedBackX){
         fbx=stepper0Pos/4/(stepsPerMmX*0.5);
 
-        // We never get to this!
+        // pretty sure this will always be !busy
         if(!busy){
           if(fbx!=fbxOld){
             fbxOld=fbx;
