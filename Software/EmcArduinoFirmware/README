@@ -6,8 +6,11 @@ EMCArduino_07b_32u4 is the development firmware compatible with an Arduino based
 
 linuxcnc is an example set of configuration files that work with the HackCNC. These are normally accessed by LinuxCNC if copied to ~/linuxcnc.
 
+NewLiquidCrystal is a control driver for using the attached LCD panel.
+
 ----------
 This software is based on the work of others. Attribution and other information can be found as follows:
 digitalWriteFast - http://code.google.com/p/digitalwritefast/
 EMCArduino - http://emc2arduino.wordpress.com/
 LinuxCNC - http://www.linuxcnc.org/
+NewLiquidCrystal - https://github.com/marcmerlin/NewLiquidCrystal
