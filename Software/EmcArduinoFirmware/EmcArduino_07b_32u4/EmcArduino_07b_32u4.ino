@@ -697,13 +697,13 @@ void loop()
     {
       lcd.setCursor (0, 3);
       lcd.print(F("X:"));
-      lcd.print(pos_x);
+      lcd.print(pos_x,1);
       lcd.setCursor (7, 3);
       lcd.print(F("Y:"));
-      lcd.print(pos_y);
+      lcd.print(pos_y,1);
       lcd.setCursor (14, 3);
       lcd.print(F("Z:"));
-      lcd.print(pos_y);
+      lcd.print(pos_z,1);
 
       lastUpdate = millis();
     }
