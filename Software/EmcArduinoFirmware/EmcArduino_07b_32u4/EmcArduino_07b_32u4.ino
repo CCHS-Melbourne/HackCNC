@@ -63,7 +63,7 @@ byte pos;
 #define BAUD 115200
 
 // These will be used in the near future.
-#define VERSION "00073"      // 5 caracters - 00073 is a variation of 00072
+#define VERSION "00072.1"      // 5 characters
 #define ROLE    "hackCNC   " // 10 characters
 
 
@@ -213,6 +213,8 @@ byte pos;
 // Where should the VIRTUAL Min switches be set to (ignored if using real switches).
 // Set to whatever you specified in the StepConf wizard.
 // it's a bit dangerous to go negative here for x and y
+// LinuxCNC will ignore limits if it's not homed.
+// We should probably follow suite
 #define xMin 0
 #define yMin 0
 #define zMin -10
@@ -366,10 +368,12 @@ void jog(float x, float y, float z)
 
   // Handle our limit switches.
     // Compressed to save visual space. Otherwise it would be several pages long!
-    
-  if(!useRealMinX){if(pos_x > xMin){xMinState=true;}else{xMinState=false;}}else{xMinState=digitalReadFast(xMinPin);if(xMinPinInverted)xMinState=!xMinState;}
-  if(!useRealMinY){if(pos_y > yMin){yMinState=true;}else{yMinState=false;}}else{yMinState=digitalReadFast(yMinPin);if(yMinPinInverted)yMinState=!yMinState;}
-  if(!useRealMinZ){if(pos_z > zMin){zMinState=true;}else{zMinState=false;}}else{zMinState=digitalReadFast(zMinPin);if(zMinPinInverted)zMinState=!zMinState;}
+
+  // only check the limit switches if it's not homed
+  // xor!
+  if(!useRealMinX){if(pos_x > xMin || !xHomed){xMinState=true;}else{xMinState=false;}}else{xMinState=digitalReadFast(xMinPin);if(xMinPinInverted)xMinState=!xMinState;}
+  if(!useRealMinY){if(pos_y > yMin || !yHomed){yMinState=true;}else{yMinState=false;}}else{yMinState=digitalReadFast(yMinPin);if(yMinPinInverted)yMinState=!yMinState;}
+  if(!useRealMinZ){if(pos_z > zMin || !zHomed){zMinState=true;}else{zMinState=false;}}else{zMinState=digitalReadFast(zMinPin);if(zMinPinInverted)zMinState=!zMinState;}
 
 
   if(!useRealMaxX){if(pos_x > xMax){xMaxState=true;}else{xMaxState=false;}}else{xMaxState=digitalReadFast(xMaxPin);if(xMaxPinInverted)xMaxState=!xMaxState;}
