@@ -356,7 +356,7 @@ void jog(float x, float y, float z)
   // We want to mark as true if either pos or homed are true, not both
   //if(!useRealMinX){if(pos_x > xMin || ( pos_x <= xMin && !xHomed)){xMinState=true;}else{xMinState=false;}}else{xMinState=digitalReadFast(xMinPin);if(xMinPinInverted)xMinState=!xMinState;}
   if(!useRealMinX){xMinState=true;if(pos_x <= xMin && !xHomed){xMinState=false;}}else{xMinState=digitalReadFast(xMinPin);if(xMinPinInverted)xMinState=!xMinState;}
-  if(!useRealMinY){xMinState=true;if(pos_y <= yMin && !yHomed){yMinState=false;}}else{yMinState=digitalReadFast(yMinPin);if(yMinPinInverted)yMinState=!yMinState;}
+  if(!useRealMinY){yMinState=true;if(pos_y <= yMin && !yHomed){yMinState=false;}}else{yMinState=digitalReadFast(yMinPin);if(yMinPinInverted)yMinState=!yMinState;}
   if(!useRealMinZ){zMinState=true;if(pos_z <= zMin && !zHomed){zMinState=false;}}else{zMinState=digitalReadFast(zMinPin);if(zMinPinInverted)zMinState=!zMinState;}
 
   // don't really need the homed question here, because if the machine is unhomed there will be physical limits as to how much it can move
