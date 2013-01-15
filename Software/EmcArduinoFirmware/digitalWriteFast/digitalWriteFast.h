@@ -1,8 +1,5 @@
 
 #include "Arduino.h" 
-//Was #include "wprogram.h", depricated...
-
-#include <wiring.h>
 
 #define BIT_READ(value, bit) (((value) >> (bit)) & 0x01)
 #define BIT_SET(value, bit) ((value) |= (1UL << (bit)))
