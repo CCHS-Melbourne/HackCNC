@@ -3,3 +3,9 @@ This repository is for the HackCNC project files.
 HackCNC is a low-cost 2axis CNC machine developed for LCA2013 - Canberra.
 
 It was developed and produced by members of hackmelbourne.org and freetronics.com.au
+
+Hardware contains the development files for building the hackCNC frame.
+
+Software contains the development and config files to compile the source code for the arduino and connect linuxcnc.
+
+Docs has several documents and images that will help when assembling the kit.

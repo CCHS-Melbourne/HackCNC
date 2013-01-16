@@ -1,9 +1,18 @@
 This folder contains software elements useful in working with the HackCNC project. 
 
-DesignFiles contains gcode, stl, svg or other files in design stages.
+Libraries contains the arduino libraries needed to compile the EMCAruino sketch.
 
-EmcArduinoFirmware contains the necessary elements for building an Arduino compatible 32u4 microprocessor firmware for interfacing with LinuxCNC.
+EMCArduino_07b_32u4 is the development firmware compatible with an Arduino based on a AT32u4 micro
 
-servo_calibrator has an Arduino program for testing and calibrating a servo motor by simple trial and error.
+NewLiquidCrystal is a control driver for using the attached LCD panel.
 
+digitalWriteFast is a fast pin manipulation commands.
 
+my-mill contains the connection and configuration files linuxcnc uses to connect to the arduino.  The simpilest place to put this in your home directory, then run linuxcnc with the command `linuxcnc my-mill.ini`
+
+----------
+This software is based on the work of others. Attribution and other information can be found as follows:
+digitalWriteFast - http://code.google.com/p/digitalwritefast/
+EMCArduino - http://emc2arduino.wordpress.com/
+LinuxCNC - http://www.linuxcnc.org/
+NewLiquidCrystal - https://github.com/marcmerlin/NewLiquidCrystal
