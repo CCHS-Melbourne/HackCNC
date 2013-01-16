@@ -130,7 +130,6 @@ byte pos;
 
 #define useEstopSwitch  false
 #define usePowerSwitch  false
-#define useProbe        false
 #define useStartSwitch  false
 #define useStopSwitch   false
 #define usePauseSwitch  false
@@ -173,7 +172,6 @@ byte pos;
 //#define eStopPin         -1 // E-Stop switch. You really, REALLY should have this one.
 //#define eStopLedPin      -1 // E-Stop indicator. Optional
 
-//#define probePin  -1 // CNC Touch probe input.     Optional
 //#define startPin  -1 // CNC Program start switch.  Optional
 //#define stopPin   -1 // CNC Stop program switch.   Optional
 //#define pausePin  -1 // CNC Pause program switch.  Optional
@@ -340,11 +338,17 @@ char runState='o'; // Off, Stopped, Running, Paused.
 // Last update of the LCD panel.
 unsigned long lastUpdate;
 
+// These are dodgy hacks to tell the LCD to clear a line next cycle
+boolean clearLine0 = false;
+boolean clearLine1 = false;
+boolean clearLine2 = false;
+boolean clearLine3 = false;
 
 //void jog(float x, float y, float z, float a, float b, float c, float u, float v, float w)
 
 void jog(float x, float y, float z)
 {
+  // don't set these until after we've checked them
   pos_x=x;
   pos_y=y;
   pos_z=z;
@@ -355,9 +359,30 @@ void jog(float x, float y, float z)
   // only check the limit switches if it's not homed
   // We want to mark as true if either pos or homed are true, not both
   //if(!useRealMinX){if(pos_x > xMin || ( pos_x <= xMin && !xHomed)){xMinState=true;}else{xMinState=false;}}else{xMinState=digitalReadFast(xMinPin);if(xMinPinInverted)xMinState=!xMinState;}
-  if(!useRealMinX){xMinState=true;if(pos_x <= xMin && !xHomed){xMinState=false;}}else{xMinState=digitalReadFast(xMinPin);if(xMinPinInverted)xMinState=!xMinState;}
-  if(!useRealMinY){yMinState=true;if(pos_y <= yMin && !yHomed){yMinState=false;}}else{yMinState=digitalReadFast(yMinPin);if(yMinPinInverted)yMinState=!yMinState;}
-  if(!useRealMinZ){zMinState=true;if(pos_z <= zMin && !zHomed){zMinState=false;}}else{zMinState=digitalReadFast(zMinPin);if(zMinPinInverted)zMinState=!zMinState;}
+  // make some of this a function?
+  if(!useRealMinX){
+    xMinState=true;
+    if(pos_x <= xMin && xHomed){
+      xMinState=false;
+      // This is probably a good opportunity to update the LCD
+      lcd.setCursor (0, 2);
+      lcd.print(F("X axis limit Reached"));
+      clearLine2 = true;
+    }
+    else if(clearLine2 && !xHomed){
+      lcd.setCursor (0, 2);
+      lcd.print(F("                    "));
+      clearLine2 = false;
+    }
+  }else{
+    xMinState=digitalReadFast(xMinPin);
+    if(xMinPinInverted){
+      xMinState=!xMinState;
+    }
+  }
+
+  if(!useRealMinY){yMinState=true;if(pos_y <= yMin && yHomed){yMinState=false;lcd.setCursor (0, 2);lcd.print(F("Y axis limit Reached"));clearLine2 = true;}else if(clearLine2 && !xHomed){lcd.setCursor (0, 2);lcd.print(F("                    "));clearLine2 = false;}}else{yMinState=digitalReadFast(yMinPin);if(yMinPinInverted)yMinState=!yMinState;}
+  if(!useRealMinZ){zMinState=true;if(pos_z <= zMin && zHomed){zMinState=false;lcd.setCursor (0, 2);lcd.print(F("Z axis limit Reached"));clearLine2 = true;}else if(clearLine2 && !xHomed){lcd.setCursor (0, 2);lcd.print(F("                    "));clearLine2 = false;}}else{zMinState=digitalReadFast(zMinPin);if(zMinPinInverted)zMinState=!zMinState;}
 
   // don't really need the homed question here, because if the machine is unhomed there will be physical limits as to how much it can move
   if(!useRealMaxX){if(pos_x > xMax){xMaxState=true;}else{xMaxState=false;}}else{xMaxState=digitalReadFast(xMaxPin);if(xMaxPinInverted)xMaxState=!xMaxState;}
@@ -382,9 +407,9 @@ void jog(float x, float y, float z)
   if(yMaxState != yMaxStateOld){yMaxStateOld=yMaxState;Serial.print("y");Serial.print(yMaxState+1);}
   if(zMaxState != zMaxStateOld){zMaxStateOld=zMaxState;Serial.print("z");Serial.print(zMaxState+1);}
 
-  if(xMinState && !xMaxState)stepper0Goto=pos_x*stepsPerMmX*2;
-  if(yMinState && !yMaxState)stepper1Goto=pos_y*stepsPerMmY*2;
-  if(zMinState && !zMaxState)stepper2Goto=pos_z*stepsPerMmZ*2; // we need the *2 as we're driving a flip-flop routine (in stepLight function)
+  if(xMinState && !xMaxState){stepper0Goto=pos_x*stepsPerMmX*2};
+  if(yMinState && !yMaxState){stepper1Goto=pos_y*stepsPerMmY*2};
+  if(zMinState && !zMaxState){stepper2Goto=pos_z*stepsPerMmZ*2}; // we need the *2 as we're driving a flip-flop routine (in stepLight function)
 
 }
 
@@ -546,7 +571,6 @@ void setup()
   // Setup eStop, power, start, stop, pause, resume, program step, spindle, coolant, LED and probe pins.
   //if(useEstopSwitch){pinMode(eStopPin,INPUT);if(!eStopPinInverted){digitalWriteFast(eStopPin,HIGH);}}
   //if(usePowerSwitch){pinMode(powerPin,INPUT);if(!powerPinInverted){digitalWriteFast(powerPin,HIGH);}}
-  //if(useProbe){pinMode(probePin,INPUT);if(!probePinInverted){digitalWriteFast(probePin,HIGH);}}
   //if(useStartSwitch){pinMode(startPin,INPUT);if(!startPinInverted){digitalWriteFast(startPin,HIGH);}}
   //if(useStopSwitch){pinMode(stopPin,INPUT);if(!stopPinInverted){digitalWriteFast(stopPin,HIGH);}}
   //if(usePauseSwitch){pinMode(pausePin,INPUT);if(!pausePinInverted){digitalWriteFast(pausePin,HIGH);}}
@@ -589,7 +613,6 @@ void loop()
   // These are all for physical switches, which we don't have
   //if(useEstopSwitch==true){boolean eStopState=digitalReadFast(eStopPin);if(eStopPinInverted){eStopState=!eStopState;}if(eStopState != eStopStateOld || eStopStateOld){eStopStateOld=eStopState;Serial.print("e");Serial.println(eStopState);delay(500);}}
   //if(usePowerSwitch==true){boolean powerState=digitalReadFast(powerPin);if(powerPinInverted){powerState=!powerState;}if(powerState != powerStateOld){powerStateOld=powerState;if(powerSwitchIsMomentary){Serial.println("pt");}else{Serial.print("p");Serial.println(powerState);}}}
-  //if(useProbe==true){boolean probeState=digitalReadFast(probePin);if(probePinInverted){probeState=!probeState;}if(probeState != probeStateOld){probeStateOld=probeState;Serial.print("P");Serial.println(probeState);}}
   //if(useStartSwitch==true){boolean startState=digitalReadFast(startPin);if(startPinInverted){startState=!startState;}if(startState != startStateOld){startStateOld=startState;Serial.print("h");Serial.println(startState);}}
   //if(useStopSwitch==true){boolean stopState=digitalReadFast(stopPin);if(stopPinInverted){stopState=!stopState;}if(stopState != stopStateOld){stopStateOld=stopState;Serial.print("h");Serial.println(stopState+2);}}
   //if(usePauseSwitch==true){boolean pauseState=digitalReadFast(pausePin);if(pausePinInverted){pauseState=!pauseState;}if(pauseState != pauseStateOld){pauseStateOld=pauseState;Serial.print("h");Serial.println(pauseState+4);}}
@@ -623,9 +646,9 @@ void loop()
 
 
     // homing
-    if(sofar>0 && buffer[sofar-2]=='0') { xHomed=true; lcd.setCursor (0, 1); lcd.print(F("X axis Homed        "));lcd.setCursor (17, 0); lcd.print(F("X"));};
-    if(sofar>0 && buffer[sofar-2]=='1') { yHomed=true; lcd.setCursor (0, 1); lcd.print(F("Y axis Homed        "));lcd.setCursor (18, 0); lcd.print(F("Y"));};
-    if(sofar>0 && buffer[sofar-2]=='2') { zHomed=true; lcd.setCursor (0, 1); lcd.print(F("Z axis Homed        "));lcd.setCursor (19, 0); lcd.print(F("Z"));};
+    if(sofar>0 && buffer[sofar-2]=='0') { xHomed=true; pos_x=0; lcd.setCursor (0, 1); lcd.print(F("X axis Homed        "));lcd.setCursor (17, 0); lcd.print(F("X"));};
+    if(sofar>0 && buffer[sofar-2]=='1') { yHomed=true; pos_y=0; lcd.setCursor (0, 1); lcd.print(F("Y axis Homed        "));lcd.setCursor (18, 0); lcd.print(F("Y"));};
+    if(sofar>0 && buffer[sofar-2]=='2') { zHomed=true; pos_z=0; lcd.setCursor (0, 1); lcd.print(F("Z axis Homed        "));lcd.setCursor (19, 0); lcd.print(F("Z"));};
 
     // reset the buffer
     sofar=0;  
@@ -641,9 +664,9 @@ void loop()
 
     //if(sofar>0 && buffer[sofar-2]=='E') { /* E-Stop Indicator  OFF */ if(eStopLedPin>0){digitalWriteFast(eStopLedPin,LOW);}}
 
-    if(sofar>0 && buffer[sofar-2]=='0') { xHomed=true; lcd.setCursor (0, 1); lcd.print(F("X axis Unhomed      "));lcd.setCursor (17, 0); lcd.print(F("_"));};
-    if(sofar>0 && buffer[sofar-2]=='1') { yHomed=true; lcd.setCursor (0, 1); lcd.print(F("Y axis Unhomed      "));lcd.setCursor (18, 0); lcd.print(F("_"));};
-    if(sofar>0 && buffer[sofar-2]=='2') { zHomed=true; lcd.setCursor (0, 1); lcd.print(F("Z axis Unhomed      "));lcd.setCursor (19, 0); lcd.print(F("_"));};
+    if(sofar>0 && buffer[sofar-2]=='0') { xHomed=false; lcd.setCursor (0, 1); lcd.print(F("X axis Unhomed      "));lcd.setCursor (17, 0); lcd.print(F("_"));};
+    if(sofar>0 && buffer[sofar-2]=='1') { yHomed=false; lcd.setCursor (0, 1); lcd.print(F("Y axis Unhomed      "));lcd.setCursor (18, 0); lcd.print(F("_"));};
+    if(sofar>0 && buffer[sofar-2]=='2') { zHomed=false; lcd.setCursor (0, 1); lcd.print(F("Z axis Unhomed      "));lcd.setCursor (19, 0); lcd.print(F("_"));};
 
 
     // clear the buffer.
@@ -658,7 +681,7 @@ void loop()
       Serial.println(VERSION);
       lcd.setCursor (0, 3);
       lcd.print(F(VERSION));
-      lcd.print(F("               ")); // match the Version length.  Cheating
+      lcd.print(F("            ")); // match the Version length.  Cheating
     }
     if(sofar>0 && buffer[sofar-2]=='R') {
       /* Report role    */
@@ -676,7 +699,7 @@ void loop()
   // if we hit a semi-colon, assume end of instruction.
   // Do NOT EXECUTE instructions if E-STOP or Power is off!
   // eStopState is not implemented yet.   awesome :(
-  if(powerState && sofar>0 && buffer[sofar-1]==';') {
+  if(powerState && eStopState && sofar>0 && buffer[sofar-1]==';') {
 
     buffer[sofar]=0;
 
@@ -690,9 +713,12 @@ void loop()
   // globalBusy is all well and good, but if the machine is working it will never update.
   // We have to find a good balance between performance and update cycle
   // Split this up due to some weirdness using all three values
-  if(powerState)
+  if(powerState && eStopState)
   {
     // update every second (1000).  Adjust this value
+    // shouldn't need to update the X:, Y: and Z: bits every iteration
+    // just update the numbers.
+    // X and Y values should be trimmed/padded to 5 characters.  z to 4
     if (lastUpdate < (millis() - 1000) || globalBusy<15 )
     {
       lcd.setCursor (0, 3);
