@@ -348,28 +348,24 @@ boolean clearLine3 = false;
 
 void jog(float x, float y, float z)
 {
-  // don't set these until after we've checked them
-  pos_x=x;
-  pos_y=y;
-  pos_z=z;
-
   // Handle our limit switches.
   // Compressed to save visual space. Otherwise it would be several pages long!
 
   // only check the limit switches if it's not homed
   // We want to mark as true if either pos or homed are true, not both
-  //if(!useRealMinX){if(pos_x > xMin || ( pos_x <= xMin && !xHomed)){xMinState=true;}else{xMinState=false;}}else{xMinState=digitalReadFast(xMinPin);if(xMinPinInverted)xMinState=!xMinState;}
+  // if(!useRealMinX){if(pos_x > xMin || ( pos_x <= xMin && !xHomed)){xMinState=true;}else{xMinState=false;}}else{xMinState=digitalReadFast(xMinPin);if(xMinPinInverted)xMinState=!xMinState;}
   // make some of this a function?
+  // TODO: Home errors for all axis should go to the LCD
   if(!useRealMinX){
     xMinState=true;
-    if(pos_x <= xMin && xHomed){
+    if(x <= xMin && xHomed){
       xMinState=false;
       // This is probably a good opportunity to update the LCD
       lcd.setCursor (0, 2);
       lcd.print(F("X axis limit Reached"));
       clearLine2 = true;
     }
-    else if(clearLine2 && !xHomed){
+    else if(clearLine2){
       lcd.setCursor (0, 2);
       lcd.print(F("                    "));
       clearLine2 = false;
@@ -381,19 +377,19 @@ void jog(float x, float y, float z)
     }
   }
 
-  if(!useRealMinY){yMinState=true;if(pos_y <= yMin && yHomed){yMinState=false;lcd.setCursor (0, 2);lcd.print(F("Y axis limit Reached"));clearLine2 = true;}else if(clearLine2 && !xHomed){lcd.setCursor (0, 2);lcd.print(F("                    "));clearLine2 = false;}}else{yMinState=digitalReadFast(yMinPin);if(yMinPinInverted)yMinState=!yMinState;}
-  if(!useRealMinZ){zMinState=true;if(pos_z <= zMin && zHomed){zMinState=false;lcd.setCursor (0, 2);lcd.print(F("Z axis limit Reached"));clearLine2 = true;}else if(clearLine2 && !xHomed){lcd.setCursor (0, 2);lcd.print(F("                    "));clearLine2 = false;}}else{zMinState=digitalReadFast(zMinPin);if(zMinPinInverted)zMinState=!zMinState;}
+  if(!useRealMinY){yMinState=true;if(y <= yMin && yHomed){yMinState=false;lcd.setCursor (0, 2);lcd.print(F("Y axis limit Reached"));clearLine2 = true;}else if(clearLine2){lcd.setCursor (0, 2);lcd.print(F("                    "));clearLine2 = false;}}else{yMinState=digitalReadFast(yMinPin);if(yMinPinInverted)yMinState=!yMinState;}
+  if(!useRealMinZ){zMinState=true;if(z <= zMin && zHomed){zMinState=false;lcd.setCursor (0, 2);lcd.print(F("Z axis limit Reached"));clearLine2 = true;}else if(clearLine2){lcd.setCursor (0, 2);lcd.print(F("                    "));clearLine2 = false;}}else{zMinState=digitalReadFast(zMinPin);if(zMinPinInverted)zMinState=!zMinState;}
 
   // don't really need the homed question here, because if the machine is unhomed there will be physical limits as to how much it can move
-  if(!useRealMaxX){if(pos_x > xMax){xMaxState=true;}else{xMaxState=false;}}else{xMaxState=digitalReadFast(xMaxPin);if(xMaxPinInverted)xMaxState=!xMaxState;}
-  if(!useRealMaxY){if(pos_y > yMax){yMaxState=true;}else{yMaxState=false;}}else{yMaxState=digitalReadFast(yMaxPin);if(yMaxPinInverted)yMaxState=!yMaxState;}
-  if(!useRealMaxZ){if(pos_z > zMax){zMaxState=true;}else{zMaxState=false;}}else{zMaxState=digitalReadFast(zMaxPin);if(zMaxPinInverted)zMaxState=!zMaxState;}
+  if(!useRealMaxX){if(x > xMax){xMaxState=true;}else{xMaxState=false;}}else{xMaxState=digitalReadFast(xMaxPin);if(xMaxPinInverted)xMaxState=!xMaxState;}
+  if(!useRealMaxY){if(y > yMax){yMaxState=true;}else{yMaxState=false;}}else{yMaxState=digitalReadFast(yMaxPin);if(yMaxPinInverted)yMaxState=!yMaxState;}
+  if(!useRealMaxZ){if(z > zMax){zMaxState=true;}else{zMaxState=false;}}else{zMaxState=digitalReadFast(zMaxPin);if(zMaxPinInverted)zMaxState=!zMaxState;}
 
   // These are only used to send a serial character if the machine is homed.
   // I can't see how they'd work at all with virtual home switches.
-  if(!useRealHomeX){if(pos_x > xHome){xHomeState=true;}else{xHomeState=false;}}else{xHomeState=digitalReadFast(xHomePin);if(xHomePinInverted)xHomeState=!xHomeState;}
-  if(!useRealHomeY){if(pos_y > yHome){yHomeState=true;}else{yHomeState=false;}}else{yHomeState=digitalReadFast(yHomePin);if(yHomePinInverted)yHomeState=!yHomeState;}
-  if(!useRealHomeZ){if(pos_z > zHome){zHomeState=true;}else{zHomeState=false;}}else{zHomeState=digitalReadFast(zHomePin);if(zHomePinInverted)zHomeState=!zHomeState;}
+  if(!useRealHomeX){if(x > xHome){xHomeState=true;}else{xHomeState=false;}}else{xHomeState=digitalReadFast(xHomePin);if(xHomePinInverted)xHomeState=!xHomeState;}
+  if(!useRealHomeY){if(y > yHome){yHomeState=true;}else{yHomeState=false;}}else{yHomeState=digitalReadFast(yHomePin);if(yHomePinInverted)yHomeState=!yHomeState;}
+  if(!useRealHomeZ){if(z > zHome){zHomeState=true;}else{zHomeState=false;}}else{zHomeState=digitalReadFast(zHomePin);if(zHomePinInverted)zHomeState=!zHomeState;}
 
   if(xMinState != xMinStateOld){xMinStateOld=xMinState;Serial.print("x");Serial.print(xMinState);}
   if(yMinState != yMinStateOld){yMinStateOld=yMinState;Serial.print("y");Serial.print(yMinState);}
@@ -407,9 +403,9 @@ void jog(float x, float y, float z)
   if(yMaxState != yMaxStateOld){yMaxStateOld=yMaxState;Serial.print("y");Serial.print(yMaxState+1);}
   if(zMaxState != zMaxStateOld){zMaxStateOld=zMaxState;Serial.print("z");Serial.print(zMaxState+1);}
 
-  if(xMinState && !xMaxState){stepper0Goto=pos_x*stepsPerMmX*2};
-  if(yMinState && !yMaxState){stepper1Goto=pos_y*stepsPerMmY*2};
-  if(zMinState && !zMaxState){stepper2Goto=pos_z*stepsPerMmZ*2}; // we need the *2 as we're driving a flip-flop routine (in stepLight function)
+  if(xMinState && !xMaxState){pos_x=x;stepper0Goto=pos_x*stepsPerMmX*2;}
+  if(yMinState && !yMaxState){pos_y=y;stepper1Goto=pos_y*stepsPerMmY*2;}
+  if(zMinState && !zMaxState){pos_z=z;stepper2Goto=pos_z*stepsPerMmZ*2;} // we need the *2 as we're driving a flip-flop routine (in stepLight function)
 
 }
 
