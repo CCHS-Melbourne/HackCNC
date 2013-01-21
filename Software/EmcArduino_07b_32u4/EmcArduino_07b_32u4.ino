@@ -56,9 +56,9 @@ This work is public domain.
 
 //Servo settings MUST BE AN INT! BETWENEN 0-180
 //servoDownZ is where your pen is engaged - pressing down 
-#define servoDownZ 165
+#define servoDownZ 90
 //servoUpZ is where your pen is disengaged - let up.
-#define servoUpZ 90
+#define servoUpZ 160
 
 // LCD Stuff
 const int PIN_LCD_STROBE         =  2;  // Out: LCD IC4094 shift-register strobe
@@ -358,7 +358,7 @@ void jog(float x, float y, float z)
   // TODO: Home errors for all axis should go to the LCD
   if(!useRealMinX){
     xMinState=true;
-    if(x <= xMin && xHomed){
+    if(x < xMin && xHomed){
       xMinState=false;
       // This is probably a good opportunity to update the LCD
       lcd.setCursor (0, 2);
@@ -377,8 +377,8 @@ void jog(float x, float y, float z)
     }
   }
 
-  if(!useRealMinY){yMinState=true;if(y <= yMin && yHomed){yMinState=false;lcd.setCursor (0, 2);lcd.print(F("Y axis limit Reached"));clearLine2 = true;}else if(clearLine2){lcd.setCursor (0, 2);lcd.print(F("                    "));clearLine2 = false;}}else{yMinState=digitalReadFast(yMinPin);if(yMinPinInverted)yMinState=!yMinState;}
-  if(!useRealMinZ){zMinState=true;if(z <= zMin && zHomed){zMinState=false;lcd.setCursor (0, 2);lcd.print(F("Z axis limit Reached"));clearLine2 = true;}else if(clearLine2){lcd.setCursor (0, 2);lcd.print(F("                    "));clearLine2 = false;}}else{zMinState=digitalReadFast(zMinPin);if(zMinPinInverted)zMinState=!zMinState;}
+  if(!useRealMinY){yMinState=true;if(y < yMin && yHomed){yMinState=false;lcd.setCursor (0, 2);lcd.print(F("Y axis limit Reached"));clearLine2 = true;}else if(clearLine2){lcd.setCursor (0, 2);lcd.print(F("                    "));clearLine2 = false;}}else{yMinState=digitalReadFast(yMinPin);if(yMinPinInverted)yMinState=!yMinState;}
+  if(!useRealMinZ){zMinState=true;if(z < zMin && zHomed){zMinState=false;lcd.setCursor (0, 2);lcd.print(F("Z axis limit Reached"));clearLine2 = true;}else if(clearLine2){lcd.setCursor (0, 2);lcd.print(F("                    "));clearLine2 = false;}}else{zMinState=digitalReadFast(zMinPin);if(zMinPinInverted)zMinState=!zMinState;}
 
   // don't really need the homed question here, because if the machine is unhomed there will be physical limits as to how much it can move
   if(!useRealMaxX){if(x > xMax){xMaxState=true;}else{xMaxState=false;}}else{xMaxState=digitalReadFast(xMaxPin);if(xMaxPinInverted)xMaxState=!xMaxState;}
@@ -715,7 +715,7 @@ void loop()
     // shouldn't need to update the X:, Y: and Z: bits every iteration
     // just update the numbers.
     // X and Y values should be trimmed/padded to 5 characters.  z to 4
-    if (lastUpdate < (millis() - 1000) || globalBusy<15 )
+    if (lastUpdate < (millis() - 1000) || globalBusy<1 )
     {
 
       lcd.setCursor (0, 3);
