@@ -409,6 +409,9 @@ void jog(float x, float y, float z)
 
 }
 
+// Forward declaration: Arduino doesn't need this but arduino-mk does
+void move_servo(float pos);
+
 void processCommand()
 {
   float xx=pos_x;
