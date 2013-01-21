@@ -54,6 +54,9 @@ This work is public domain.
 
 #include <Servo.h> 
 
+#include <avr/io.h>
+#include <avr/interrupt.h>
+
 //Servo settings MUST BE AN INT! BETWENEN 0-180
 //servoDownZ is where your pen is engaged - pressing down 
 #define servoDownZ 90
@@ -99,7 +102,8 @@ byte pos;
 
 //#define minStepTime 25 //delay in MICROseconds between step pulses.
 //#define minStepTime 625
-#define minStepTime 77
+// at 8x microstepping 1600 microsteps/rotation, so 625 = 1 rotation/sec
+#define stepTime 77 // 8 rotations / second
 
 // step pins (required)
 #define stepPin0 10 //x step D10 - pin 30
@@ -223,9 +227,9 @@ byte pos;
 #define yMax 100
 #define zMax 10
 
-#define giveFeedBackX false
-#define giveFeedBackY false
-#define giveFeedBackZ false
+const bool giveFeedBackX = false;
+const bool giveFeedBackY = false;
+const bool giveFeedBackZ = false;
 
 /*
   This indicator led will let you know how hard you pushing the Arduino.
@@ -258,14 +262,13 @@ float pos_x;
 float pos_y;
 float pos_z;
 
-boolean stepState=LOW;
-unsigned long stepTimeOld=0;
-long stepper0Pos=0;
-long stepper0Goto=0;
-long stepper1Pos=0;
-long stepper1Goto=0;
-long stepper2Pos=0;
-long stepper2Goto=0;
+volatile boolean stepState=LOW;
+volatile long stepper0Pos=0;
+volatile long stepper0Goto=0;
+volatile long stepper1Pos=0;
+volatile long stepper1Goto=0;
+volatile long stepper2Pos=0;
+volatile long stepper2Goto=0;
 
 boolean xMinState=false;
 boolean yMinState=false;
@@ -315,7 +318,7 @@ boolean zHomed=false;
 
 // this is a representation on how busy the arduino is.
 // at 0 the arduino is idle, at 255 it is maxed out
-int globalBusy=0;
+volatile int globalBusy=0;
 
 long divisor=1000000; // input divisor. Our HAL script wont send the six decimal place floats that EMC cranks out.
 // A simple workaround is to multply it by 1000000 before sending it over the wire.
@@ -323,13 +326,16 @@ long divisor=1000000; // input divisor. Our HAL script wont send the six decimal
 // Used in: processCommand()
 
 // these are feedback values
-float fbx=1;
-float fby=1;
-float fbz=1;
+volatile float fbx=1;
+volatile float fby=1;
+volatile float fbz=1;
 
-float fbxOld=0;
-float fbyOld=0;
-float fbzOld=0;
+volatile float fbxOld=0;
+volatile float fbyOld=0;
+volatile float fbzOld=0;
+volatile bool fbxTrigger = false;
+volatile bool fbyTrigger = false;
+volatile bool fbzTrigger = false;
 
 // The current state of the program
 // mainly used for the LCD
@@ -454,76 +460,70 @@ void move_servo(float pos){
 }
 
 
-void stepLight() // Set by jog() && Used by loop()
+// Timer3 interrupt vector to step the motors as needed
+//
+// Values used here are set by the jog() method
+ISR( TIMER3_COMPA_vect )
 {
-  unsigned long curTime=micros();
-  int busy;
+  bool busy;
 
-  if(curTime - stepTimeOld >= minStepTime)
-  {
-    stepState=!stepState;
-    busy=0;
+  stepState=!stepState;
+  busy=false;
 
-    // broken out to look at the logic
+  if(stepper0Pos != stepper0Goto) {
     // so, the stepper position hasn't reached it's destination.
-    // 
-    if(stepper0Pos != stepper0Goto){
-      busy++;
-      if(stepper0Pos > stepper0Goto){
-        digitalWriteFast(dirPin0,!dirState0);
-        digitalWriteFast(stepPin0,stepState);
-        stepper0Pos--;
-      }
-      else{
-        // so the stepper has reached it's destination.
-        digitalWriteFast(dirPin0, dirState0);
-        digitalWriteFast(stepPin0,stepState);
-        stepper0Pos++;
-      }
+    busy = true;
+    if(stepper0Pos > stepper0Goto){
+      digitalWriteFast(dirPin0,!dirState0);
+      digitalWriteFast(stepPin0,stepState);
+      stepper0Pos--;
     }
+    else {
+      digitalWriteFast(dirPin0, dirState0);
+      digitalWriteFast(stepPin0,stepState);
+      stepper0Pos++;
+    }
+  }
 
-    if(stepper1Pos != stepper1Goto){busy++;if(stepper1Pos > stepper1Goto){digitalWriteFast(dirPin1,!dirState1);digitalWriteFast(stepPin1,stepState);stepper1Pos--;}else{digitalWriteFast(dirPin1, dirState1);digitalWriteFast(stepPin1,stepState);stepper1Pos++;}}
-    // if(stepper2Pos != stepper2Goto){busy++;if(stepper2Pos > stepper2Goto){digitalWriteFast(dirPin2,!dirState2);digitalWriteFast(stepPin2,stepState);stepper2Pos--;}else{digitalWriteFast(dirPin2, dirState2);digitalWriteFast(stepPin2,stepState);stepper2Pos++;}}
+  if(stepper1Pos != stepper1Goto) {
+    busy = true;
+    if(stepper1Pos > stepper1Goto) {
+      digitalWriteFast(dirPin1,!dirState1);
+      digitalWriteFast(stepPin1,stepState);
+      stepper1Pos--;
+    } else {
+      digitalWriteFast(dirPin1, dirState1);
+      digitalWriteFast(stepPin1,stepState);
+      stepper1Pos++;}
+  }
 
-
-
+  if(busy){
     // we have a busy value, so we're still moving.
     // This is meant to flash an LED when it's busy
+    digitalWriteFast(idleIndicator,HIGH);
+    // increment to say we're still busy.
+    if(globalBusy<255){
+      globalBusy++;
+    }
+  }
+  else {
+    // not busy, time to do some feedback
+    digitalWriteFast(idleIndicator,LOW);
+    if(globalBusy>0){
+      globalBusy--;
+    }
     
-    if(busy){
-      digitalWriteFast(idleIndicator,HIGH);
-      // increment to say we're still busy.
-      if(globalBusy<255){
-        globalBusy++;
-      }
+    // Set flag if we need to give feedback
+    if(giveFeedBackX){
+      fbx=stepper0Pos/4/(stepsPerMmX*0.5);
+      fbxTrigger = fbxTrigger || (fbx != fbxOld);
+      fbxOld = fbx;
     }
-    else{
-      // not busy, time to do some feedback
-      digitalWriteFast(idleIndicator,LOW);
-      if(globalBusy>0){
-        globalBusy--;
-      }
-
-      // this transmits we're not ready to finish.
-      // but isn't used upstream in the HAL
-      if(giveFeedBackX){
-        fbx=stepper0Pos/4/(stepsPerMmX*0.5);
-
-        // pretty sure this will always be !busy
-        if(!busy){
-          if(fbx!=fbxOld){
-            fbxOld=fbx;
-            Serial.print("fx");
-            Serial.println(fbx,6);
-          }
-        }
-      }
-      if(giveFeedBackY){fby=stepper1Pos/4/(stepsPerMmY*0.5);if(!busy){if(fby!=fbyOld){fbyOld=fby;Serial.print("fy");Serial.println(fby,6);}}}
-      // if(giveFeedBackZ){fbz=stepper2Pos/4/(stepsPerInchZ*0.5);if(!busy){if(fbz!=fbzOld){fbzOld=fbz;Serial.print("fz");Serial.println(fbz,6);}}}
-
+    if(giveFeedBackY) {
+      fby=stepper1Pos/4/(stepsPerMmY*0.5);
+      fbyTrigger = fbyTrigger || (fby != fbyOld);
+      fbyOld = fby;
     }
-
-    stepTimeOld=curTime;
   }
 }
 
@@ -605,6 +605,16 @@ void setup()
 
   // Initialize serial command buffer.
   sofar=0;
+
+  // set up timer3 to fire interrupt for transmitting step pulses
+  cli();
+  TCCR3A = 0;
+  TCCR3B = _BV(CS31) | _BV(WGM32); // /8 prescaler, means a 2mhz clock
+  OCR3A = stepTime*2; // step time is in us, so double that value for 2mhz clock ticks
+  TCNT3 = 0;
+  TIMSK3 |= _BV(OCIE3A);
+  sei();
+
 }
 
 void loop()
@@ -735,6 +745,17 @@ void loop()
     }
   }
 
-  stepLight(); // call every loop cycle to update stepper motion.
+  // Check if we need to send end-of-move feedback to linuxcnc
+  // (this feedback isn't currently used upstream in the HAL)
+  if(fbxTrigger){
+    Serial.print("fx");
+    Serial.println(fbx,6);
+    fbxTrigger = false;
+  }
+  if(fbyTrigger) {
+    Serial.print("fy");
+    Serial.println(fby,6);
+    fbyTrigger = false;
+  }
 }
 
