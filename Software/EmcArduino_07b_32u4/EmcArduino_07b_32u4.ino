@@ -219,9 +219,9 @@ byte pos;
 // Where should the VIRTUAL Max switches be set to (ignored if using real switches).
 // Set to whatever you specified in the StepConf wizard.
 // updated for mm
-#define xMax 400
-#define yMax 300
-#define zMax 20
+#define xMax 140
+#define yMax 100
+#define zMax 10
 
 #define giveFeedBackX false
 #define giveFeedBackY false
@@ -717,6 +717,7 @@ void loop()
     // X and Y values should be trimmed/padded to 5 characters.  z to 4
     if (lastUpdate < (millis() - 1000) || globalBusy<15 )
     {
+
       lcd.setCursor (0, 3);
       lcd.print(F("X:"));
       lcd.print(pos_x,1);
