@@ -205,14 +205,13 @@ byte pos;
 #define resumePinInverted false
 #define stepPinInverted   false
 
-// Where should the VIRTUAL Min switches be set to (ignored if using real switches).
-// Set to whatever you specified in the StepConf wizard.
-// it's a bit dangerous to go negative here for x and y
-// LinuxCNC will ignore limits if it's not homed.
-// We should probably follow suite
-#define xMin 0
-#define yMin 0
-#define zMin -10
+// Minimum position of virtual "homed" axes, in mm.  The HAL layer
+// doesn't change its point of reference when homing, so we need to
+// move the minimum positions so we know when we are at the home
+// position
+float xMin = 0;
+float yMin = 0;
+float zMin = 0;
 
 // Where should the VIRTUAL home switches be set to (ignored if using real switches).
 // Set to whatever you specified in the StepConf wizard.
@@ -655,9 +654,9 @@ void loop()
 
 
     // homing
-    if(sofar>0 && buffer[sofar-2]=='0') { xHomed=true; pos_x=0; lcd.setCursor (0, 1); lcd.print(F("X axis Homed        "));lcd.setCursor (17, 0); lcd.print(F("X"));};
-    if(sofar>0 && buffer[sofar-2]=='1') { yHomed=true; pos_y=0; lcd.setCursor (0, 1); lcd.print(F("Y axis Homed        "));lcd.setCursor (18, 0); lcd.print(F("Y"));};
-    if(sofar>0 && buffer[sofar-2]=='2') { zHomed=true; pos_z=0; lcd.setCursor (0, 1); lcd.print(F("Z axis Homed        "));lcd.setCursor (19, 0); lcd.print(F("Z"));};
+    if(sofar>0 && buffer[sofar-2]=='0') { xHomed=true; xMin = pos_x; lcd.setCursor (0, 1); lcd.print(F("X axis Homed        "));lcd.setCursor (17, 0); lcd.print(F("X"));};
+    if(sofar>0 && buffer[sofar-2]=='1') { yHomed=true; yMin = pos_y; lcd.setCursor (0, 1); lcd.print(F("Y axis Homed        "));lcd.setCursor (18, 0); lcd.print(F("Y"));};
+    if(sofar>0 && buffer[sofar-2]=='2') { zHomed=true; zMin = pos_z; lcd.setCursor (0, 1); lcd.print(F("Z axis Homed        "));lcd.setCursor (19, 0); lcd.print(F("Z"));};
 
     // reset the buffer
     sofar=0;  
@@ -733,13 +732,13 @@ void loop()
 
       lcd.setCursor (0, 3);
       lcd.print(F("X:"));
-      lcd.print(pos_x,1);
+      lcd.print(pos_x-xMin,1);
       lcd.setCursor (7, 3);
       lcd.print(F("Y:"));
-      lcd.print(pos_y,1);
+      lcd.print(pos_y-yMin,1);
       lcd.setCursor (14, 3);
       lcd.print(F("Z:"));
-      lcd.print(pos_z,1);
+      lcd.print(pos_z-zMin,1);
 
       lastUpdate = millis();
     }
