@@ -73,7 +73,7 @@ byte pos;
 #define BAUD 115200
 
 // These will be used in the near future.
-#define VERSION "00072.1"      // 5 characters seems arbitrary.  the .1 will give us an idea what version is uploaded to the arduino while we're developing.
+#define VERSION "00072.2"      // 5 characters seems arbitrary.  the .1 will give us an idea what version is uploaded to the arduino while we're developing.
 #define ROLE    "hackCNC   " // 10 characters
 
 
@@ -491,7 +491,7 @@ void stepLight() // Set by jog() && Used by loop()
     // This is meant to flash an LED when it's busy
     
     if(busy){
-      digitalWriteFast(idleIndicator,HIGH);
+      digitalWrite(idleIndicator,HIGH);
       // increment to say we're still busy.
       if(globalBusy<255){
         globalBusy++;
@@ -499,7 +499,7 @@ void stepLight() // Set by jog() && Used by loop()
     }
     else{
       // not busy, time to do some feedback
-      digitalWriteFast(idleIndicator,LOW);
+      digitalWrite(idleIndicator,LOW);
       if(globalBusy>0){
         globalBusy--;
       }
@@ -645,9 +645,9 @@ void loop()
 
 
     // homing
-    if(sofar>0 && buffer[sofar-2]=='0') { xHomed=true; pos_x=0; lcd.setCursor (0, 1); lcd.print(F("X axis Homed        "));lcd.setCursor (17, 0); lcd.print(F("X"));};
-    if(sofar>0 && buffer[sofar-2]=='1') { yHomed=true; pos_y=0; lcd.setCursor (0, 1); lcd.print(F("Y axis Homed        "));lcd.setCursor (18, 0); lcd.print(F("Y"));};
-    if(sofar>0 && buffer[sofar-2]=='2') { zHomed=true; pos_z=0; lcd.setCursor (0, 1); lcd.print(F("Z axis Homed        "));lcd.setCursor (19, 0); lcd.print(F("Z"));};
+    if(sofar>0 && buffer[sofar-2]=='0') { xHomed=true; pos_x=xHome; stepper0Pos=xHome; stepper0Goto=xHome; lcd.setCursor (0, 1); lcd.print(F("X axis Homed        "));lcd.setCursor (17, 0); lcd.print(F("X"));};
+    if(sofar>0 && buffer[sofar-2]=='1') { yHomed=true; pos_y=yHome; stepper1Pos=yHome; stepper1Goto=yHome; lcd.setCursor (0, 1); lcd.print(F("Y axis Homed        "));lcd.setCursor (18, 0); lcd.print(F("Y"));};
+    if(sofar>0 && buffer[sofar-2]=='2') { zHomed=true; pos_z=zHome; stepper2Pos=zHome; stepper2Goto=zHome; lcd.setCursor (0, 1); lcd.print(F("Z axis Homed        "));lcd.setCursor (19, 0); lcd.print(F("Z"));};
 
     // reset the buffer
     sofar=0;  
