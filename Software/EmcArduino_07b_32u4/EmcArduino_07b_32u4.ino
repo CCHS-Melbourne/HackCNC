@@ -209,9 +209,9 @@ byte pos;
 // doesn't change its point of reference when homing, so we need to
 // move the minimum positions so we know when we are at the home
 // position
-float xMin = 0;
-float yMin = 0;
-float zMin = 0;
+#define xMin 0
+#define yMin 0
+#define zMin -10
 
 // Where should the VIRTUAL home switches be set to (ignored if using real switches).
 // Set to whatever you specified in the StepConf wizard.
@@ -256,6 +256,11 @@ boolean dirState2=true;
 // This buffer's a single command.
 char buffer[128];
 int sofar;
+
+// Offsets from HAL positions to real positions (in mm)
+float xOffset;
+float yOffset;
+float zOffset;
 
 float pos_x;
 float pos_y;
@@ -353,6 +358,10 @@ boolean clearLine3 = false;
 
 void jog(float x, float y, float z)
 {
+  x -= xOffset;
+  y -= yOffset;
+  z -= zOffset;
+
   // Handle our limit switches.
   // Compressed to save visual space. Otherwise it would be several pages long!
 
@@ -408,9 +417,9 @@ void jog(float x, float y, float z)
   if(yMaxState != yMaxStateOld){yMaxStateOld=yMaxState;Serial.print("y");Serial.print(yMaxState+1);}
   if(zMaxState != zMaxStateOld){zMaxStateOld=zMaxState;Serial.print("z");Serial.print(zMaxState+1);}
 
-  if(xMinState && !xMaxState){pos_x=x;stepper0Goto=pos_x*stepsPerMmX*2;}
-  if(yMinState && !yMaxState){pos_y=y;stepper1Goto=pos_y*stepsPerMmY*2;}
-  if(zMinState && !zMaxState){pos_z=z;stepper2Goto=pos_z*stepsPerMmZ*2;} // we need the *2 as we're driving a flip-flop routine (in stepLight function)
+  if(xMinState && !xMaxState){pos_x=x+xOffset;stepper0Goto=pos_x*stepsPerMmX*2;}
+  if(yMinState && !yMaxState){pos_y=y+yOffset;stepper1Goto=pos_y*stepsPerMmY*2;}
+  if(zMinState && !zMaxState){pos_z=z+zOffset;stepper2Goto=pos_z*stepsPerMmZ*2;} // we need the *2 as we're driving a flip-flop routine (in stepLight function)
 
 }
 
@@ -654,9 +663,9 @@ void loop()
 
 
     // homing
-    if(sofar>0 && buffer[sofar-2]=='0') { xHomed=true; xMin = pos_x; lcd.setCursor (0, 1); lcd.print(F("X axis Homed        "));lcd.setCursor (17, 0); lcd.print(F("X"));};
-    if(sofar>0 && buffer[sofar-2]=='1') { yHomed=true; yMin = pos_y; lcd.setCursor (0, 1); lcd.print(F("Y axis Homed        "));lcd.setCursor (18, 0); lcd.print(F("Y"));};
-    if(sofar>0 && buffer[sofar-2]=='2') { zHomed=true; zMin = pos_z; lcd.setCursor (0, 1); lcd.print(F("Z axis Homed        "));lcd.setCursor (19, 0); lcd.print(F("Z"));};
+    if(sofar>0 && buffer[sofar-2]=='0') { xHomed=true; xOffset = pos_x; lcd.setCursor (0, 1); lcd.print(F("X axis Homed        "));lcd.setCursor (17, 0); lcd.print(F("X"));};
+    if(sofar>0 && buffer[sofar-2]=='1') { yHomed=true; yOffset = pos_y; lcd.setCursor (0, 1); lcd.print(F("Y axis Homed        "));lcd.setCursor (18, 0); lcd.print(F("Y"));};
+    if(sofar>0 && buffer[sofar-2]=='2') { zHomed=true; zOffset = pos_z; lcd.setCursor (0, 1); lcd.print(F("Z axis Homed        "));lcd.setCursor (19, 0); lcd.print(F("Z"));};
 
     // reset the buffer
     sofar=0;  
@@ -732,13 +741,13 @@ void loop()
 
       lcd.setCursor (0, 3);
       lcd.print(F("X:"));
-      lcd.print(pos_x-xMin,1);
+      lcd.print(pos_x-xOffset,1);
       lcd.setCursor (7, 3);
       lcd.print(F("Y:"));
-      lcd.print(pos_y-yMin,1);
+      lcd.print(pos_y-yOffset,1);
       lcd.setCursor (14, 3);
       lcd.print(F("Z:"));
-      lcd.print(pos_z-zMin,1);
+      lcd.print(pos_z-zOffset,1);
 
       lastUpdate = millis();
     }
