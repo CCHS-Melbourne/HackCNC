@@ -103,7 +103,7 @@ void loop()
     if(buff=='s' || buff=='S'){
       lcd.setCursor (0, 3);
       lcd.print(F("Drawing 10mm Square."));
-      move_servo(-0.75);
+      move_servo(-1.00);
       
 /* I HAVE NO IDEA WHY THIS WON'T WORK!!!
 
