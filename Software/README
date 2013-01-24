@@ -10,6 +10,8 @@ digitalWriteFast is a fast pin manipulation commands.
 
 my-mill contains the connection and configuration files linuxcnc uses to connect to the arduino.  The simpilest place to put this in your home directory, then run linuxcnc with the command `linuxcnc my-mill.ini`
 
+FunctionTest contains a basic sketch for testing high level components (serial communications, LCD, steppers, servo) without LinuxCNC.
+
 ----------
 This software is based on the work of others. Attribution and other information can be found as follows:
 digitalWriteFast - http://code.google.com/p/digitalwritefast/
